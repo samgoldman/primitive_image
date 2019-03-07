@@ -1,6 +1,6 @@
 use crate::triangle::Triangle;
 use crate::utilities::clamp;
-use crate::polygon::{Polygon, RandomPolygon};
+use crate::polygon::{Polygon, RandomPolygon, PolygonType};
 
 use image::{open, Rgba, ImageBuffer};
 use image::imageops::{resize, Nearest};
@@ -153,11 +153,11 @@ impl PrimitiveImage {
         root_mean_squared_error(&self.target, &self.approximation)
     }
 
-    pub fn add_new_shape(&mut self, max_age: u32, shape_type: usize, seed: u64) -> bool {
+    pub fn add_new_shape(&mut self, max_age: u32, shape_type: PolygonType, seed: u64) -> bool {
         // Initialize a random shape and give it a color
         let mut shape = match shape_type {
-                0 => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                _ => panic!("Unsupported shape: {}", shape_type)
+                Triangle => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
+                _ => panic!("Unsupported shape: {:?}", shape_type)
             };
         shape.set_color_using(self);
 

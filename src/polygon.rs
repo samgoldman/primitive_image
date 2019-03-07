@@ -3,6 +3,12 @@ use crate::primitive_image::PrimitiveImage;
 use image::ImageBuffer;
 use image::Rgba;
 use std::fmt::Debug;
+use std::fmt::{Display, Formatter, Result};
+
+#[derive(Debug)]
+pub enum PolygonType {
+    triangle
+}
 
 pub trait Polygon: PolygonClone + Debug {
     fn mutate(&mut self, width: u32, height: u32, seed: u64);
