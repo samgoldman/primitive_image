@@ -27,6 +27,12 @@ impl Triangle {
              self.path[2].to_drawing_point()]
     }
 
+    ///
+    /// Determine if this triangle is valid
+    ///
+    /// A triangle is valid if none of is points are equal to each other and
+    /// if all of its angles are at least `MINIMUM_DEGREES` in magnitude
+    ///
     fn is_valid(&self) -> bool {
         let p0 = self.path[0];
         let p1 = self.path[1];
@@ -87,6 +93,9 @@ impl Polygon for Triangle {
         }
     }
 
+    ///
+    /// Determine if this triangle contains the point (`x`, `y`)
+    ///
     fn contains_pixel(&self, x: i32, y: i32) -> bool {
         let p = PrimitivePoint::new(x, y);
 
@@ -113,6 +122,8 @@ impl Polygon for Triangle {
                 (self.path[2].x as f64 * scale) as i32, (self.path[2].y as f64 * scale) as i32)
     }
 
+    // Suppress intellij inspection for E0308 (false positive)
+    //noinspection RsTypeCheck
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
 
@@ -126,6 +137,8 @@ impl Polygon for Triangle {
         output
     }
 
+    // Suppress intellij inspection for E0308 (false positive)
+    //noinspection RsTypeCheck
     fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
 
