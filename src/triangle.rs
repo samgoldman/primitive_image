@@ -160,7 +160,53 @@ impl Polygon for Triangle {
     }
 }
 
+///
+/// https://fgiesen.wordpress.com/2013/02/08/triangle-rasterization-in-practice/
+/// Compute the determinant |p0.x p1.x p2.x|
+///                         |p0.y p1.y p2.y|
+///                         | 1    1    1  |
+/// If this is positive
+///
 fn orient_2d(p0: PrimitivePoint, p1: PrimitivePoint, p2: PrimitivePoint) -> i32 {
-    //https://fgiesen.wordpress.com/2013/02/08/triangle-rasterization-in-practice/
     (p1.x-p0.x)*(p2.y-p0.y) - (p1.y-p0.y)*(p2.x-p0.x)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_orient_2d() {
+        let mut p1 = PrimitivePoint::new(1, 1);
+        let mut p2 = PrimitivePoint::new(1, 1);
+        let mut p3 = PrimitivePoint::new(1, 1);
+
+        // |1 1 1|
+        // |1 1 1| = 0
+        // |1 1 1|
+        let mut expected = 0;
+        assert_eq!(orient_2d(p1, p2, p3), expected);
+
+        p1.x = 1;
+        p1.y = 0;
+        p2.x = 0;
+        p2.y = 1;
+        p3.x = 1;
+        p3.y = 1;
+
+        // |1 0 1|
+        // |0 1 1| = -1
+        // |1 1 1|
+        expected = -1;
+        assert_eq!(orient_2d(p1, p2, p3), expected);
+
+        p3.x = 0;
+        p3.y = 0;
+
+        // |1 0 0|
+        // |0 1 0| = 1
+        // |1 1 1|
+        expected = 1;
+        assert_eq!(orient_2d(p1, p2, p3), expected);
+    }
 }
