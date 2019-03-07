@@ -17,6 +17,11 @@ impl PrimitivePoint {
         PrimitivePoint {x, y}
     }
 
+    ///
+    /// Mutate the point's x and y coordinates
+    /// Keeps the point within 5 pixels outside of the standard image border
+    /// Uses a standard deviation of 16, with a mean of 0, for the mutation
+    ///
     pub fn mutate(&mut self, width: u32, height: u32, seed: u64) {
         let mut rng = if seed != 0 {
             StdRng::seed_from_u64(seed)
@@ -32,6 +37,9 @@ impl PrimitivePoint {
         self.y = clamp(self.y + (normal.sample(&mut rng) as i32), -1 * border_extension, height as i32 + border_extension);;
     }
 
+    ///
+    /// Convert this point to the `Point` format used by imageproc
+    ///
     pub fn to_drawing_point(&self) -> Point<i32> {
         Point::new(self.x, self.y)
     }
@@ -54,6 +62,9 @@ impl PrimitivePoint {
         degrees(acos(rdx1*rdx2 + rdy1*rdy2))
     }
 
+    ///
+    /// Return a new Primitive point within the rectangular bounds provided
+    ///
     pub fn random_point(width: u32, height: u32, seed: u64) -> PrimitivePoint {
         let mut rng = if seed != 0 {
             StdRng::seed_from_u64(seed)
@@ -67,6 +78,9 @@ impl PrimitivePoint {
         PrimitivePoint::new(rand_x, rand_y)
     }
 
+    ///
+    /// Return a new PrimitivePoint with `radius` pixels of this point
+    ///
     pub fn random_point_in_radius(&self, radius: i32, seed: u64) -> PrimitivePoint {
         let mut rng = if seed != 0 {
             StdRng::seed_from_u64(seed)
@@ -95,5 +109,43 @@ mod tests {
         let p = PrimitivePoint::new(5, 5);
         // Like in `test_random_point`, both ranges should be [0-10), so the output point should be the same, given the same seed
         assert_eq!(p.random_point_in_radius(5, seed), PrimitivePoint::new(2, 5));
+    }
+
+    #[test]
+    fn test_angle() {
+        // A right triangle with the smallest angle ~15.5
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 18);
+        assert_eq!(p3.angle(p1, p2) as u32, 15);
+
+        // A right triangle with the smallest angle ~14.7
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 19);
+        assert_eq!(p3.angle(p1, p2) as u32, 14);
+
+        // A right triangle
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 5);
+        assert_eq!(p1.angle(p2, p3) as u32, 90);
+
+        // A right triangle with 45-45
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 5);
+        assert_eq!(p2.angle(p1, p3) as u32, 45);
+
+    }
+
+    #[test]
+    fn test_mutate() {
+        let seed = 42;
+
+        let mut p = PrimitivePoint::new(0, 0);
+        p.mutate(10, 10, seed);
+        assert_eq!(p.x, 15); // Based on prior executions
+        assert_eq!(p.y, 1);
     }
 }
