@@ -5,12 +5,11 @@ use image::Rgba;
 use imageproc::drawing::Point;
 use std::cmp::{min, max};
 use rand;
-use rand::prelude::*;
 use rand::Rng;
 use image::ImageBuffer;
 use imageproc::drawing::draw_convex_polygon;
 use image::imageops::overlay;
-use crate::utilities::get_time_seed;
+use crate::utilities::get_rng;
 
 const MINIMUM_DEGREES: f64 = 15.0;
 
@@ -71,11 +70,7 @@ impl RandomPolygon for Triangle {
 
 impl Polygon for Triangle {
     fn mutate(&mut self, width: u32, height: u32, seed: u64) {
-        let mut rng = if seed != 0 {
-            StdRng::seed_from_u64(seed)
-        } else {
-            StdRng::seed_from_u64(get_time_seed())
-        };
+        let mut rng = get_rng(seed);
 
         let mut i = 0;
         loop {

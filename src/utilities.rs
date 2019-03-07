@@ -1,6 +1,8 @@
 use std::f64;
 use std::cmp::{min, max};
 use std::time::{SystemTime, UNIX_EPOCH};
+use rand;
+use rand::prelude::*;
 
 /// Return the square root of x
 pub fn sqrt(x: f64) -> f64 {
@@ -21,7 +23,15 @@ pub fn clamp(value: i32, min_v: i32, max_v: i32) -> i32 {
     max(min_v, min(max_v, value))
 }
 
-pub fn get_time_seed() -> u64 {
+pub fn get_rng(seed: u64) -> StdRng {
+    if seed != 0 {
+        StdRng::seed_from_u64(seed)
+    } else {
+        StdRng::seed_from_u64(get_time_seed())
+    }
+}
+
+fn get_time_seed() -> u64 {
     let start = SystemTime::now();
     let since_the_epoch = start.duration_since(UNIX_EPOCH).expect("Time went backwards");
     let seed = since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_nanos() as u64;

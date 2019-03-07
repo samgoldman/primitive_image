@@ -1,5 +1,4 @@
 use rand;
-use rand::prelude::*;
 use rand::Rng;
 use rand::distributions::Distribution;
 use rand::distributions::Normal;
@@ -23,11 +22,7 @@ impl PrimitivePoint {
     /// Uses a standard deviation of 16, with a mean of 0, for the mutation
     ///
     pub fn mutate(&mut self, width: u32, height: u32, seed: u64) {
-        let mut rng = if seed != 0 {
-            StdRng::seed_from_u64(seed)
-        } else {
-            StdRng::seed_from_u64(get_time_seed())
-        };
+        let mut rng = get_rng(seed);
 
         let border_extension = 5;
 
@@ -66,11 +61,7 @@ impl PrimitivePoint {
     /// Return a new Primitive point within the rectangular bounds provided
     ///
     pub fn random_point(width: u32, height: u32, seed: u64) -> PrimitivePoint {
-        let mut rng = if seed != 0 {
-            StdRng::seed_from_u64(seed)
-        } else {
-            StdRng::seed_from_u64(get_time_seed())
-        };
+        let mut rng = get_rng(seed);
 
         let rand_x = rng.gen_range(0, width as i32);
         let rand_y = rng.gen_range(0, height as i32);
@@ -82,11 +73,7 @@ impl PrimitivePoint {
     /// Return a new PrimitivePoint with `radius` pixels of this point
     ///
     pub fn random_point_in_radius(&self, radius: i32, seed: u64) -> PrimitivePoint {
-        let mut rng = if seed != 0 {
-            StdRng::seed_from_u64(seed)
-        } else {
-            StdRng::seed_from_u64(get_time_seed())
-        };
+        let mut rng = get_rng(seed);
 
         PrimitivePoint::new(rng.gen_range(self.x - radius, self.x + radius),
                             rng.gen_range(self.y - radius, self.y + radius))
