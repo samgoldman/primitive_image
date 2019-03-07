@@ -9,13 +9,13 @@ mod arguments;
 use structopt::StructOpt;
 use primitive_image::primitive_image::PrimitiveImage;
 use simplelog::*;
-use primitive_image::polygon::PolygonType::triangle;
+use primitive_image::shape::ShapeType::Triangle;
 
 fn run(image: &mut PrimitiveImage, number_of_shapes: u32, max_age: u32, seed: u64) {
     let mut n = 0;
 
     while n < number_of_shapes {
-        if image.add_new_shape(max_age, triangle, seed) {
+        if image.add_new_shape(max_age, Triangle, seed) {
             n += 1;
             info!("Added shape #{}", n);
         } else {

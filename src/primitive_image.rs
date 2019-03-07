@@ -1,6 +1,6 @@
 use crate::triangle::Triangle;
 use crate::utilities::clamp;
-use crate::polygon::{Polygon, RandomPolygon, PolygonType};
+use crate::shape::{Shape, RandomShape, ShapeType};
 
 use image::{open, Rgba, ImageBuffer};
 use image::imageops::{resize, Nearest};
@@ -19,7 +19,7 @@ pub struct PrimitiveImage {
     target: ImageBuffer<Rgba<u8>, Vec<u8>>,
     approximation: ImageBuffer<Rgba<u8>, Vec<u8>>,
     scale: f64,
-    polygons: Vec<Box<Polygon>>,
+    polygons: Vec<Box<Shape>>,
     background: Rgba<u8>
 }
 impl PrimitiveImage {
@@ -55,7 +55,7 @@ impl PrimitiveImage {
         PrimitiveImage {target: resized, approximation, scale, background, polygons: vec![]}
     }
 
-    pub fn target_average_color_in_polygon(&self, poly: &Box<impl Polygon>) -> Rgba<u8> {
+    pub fn target_average_color_in_polygon(&self, poly: &Box<impl Shape>) -> Rgba<u8> {
         average_color_in_polygon(&self.target, poly)
     }
 
@@ -153,11 +153,10 @@ impl PrimitiveImage {
         root_mean_squared_error(&self.target, &self.approximation)
     }
 
-    pub fn add_new_shape(&mut self, max_age: u32, shape_type: PolygonType, seed: u64) -> bool {
+    pub fn add_new_shape(&mut self, max_age: u32, shape_type: ShapeType, seed: u64) -> bool {
         // Initialize a random shape and give it a color
         let mut shape = match shape_type {
-                Triangle => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                _ => panic!("Unsupported shape: {:?}", shape_type)
+                ShapeType::Triangle => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
             };
         shape.set_color_using(self);
 
@@ -217,7 +216,7 @@ impl PrimitiveImage {
     }
 }
 
-fn average_color_in_polygon(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, poly: &Box<impl Polygon>) -> Rgba<u8> {
+fn average_color_in_polygon(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, poly: &Box<impl Shape>) -> Rgba<u8> {
     let (width, height) = image.dimensions();
 
     let bounding_box = poly.bounding_box();

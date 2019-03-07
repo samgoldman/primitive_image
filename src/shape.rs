@@ -3,14 +3,13 @@ use crate::primitive_image::PrimitiveImage;
 use image::ImageBuffer;
 use image::Rgba;
 use std::fmt::Debug;
-use std::fmt::{Display, Formatter, Result};
 
 #[derive(Debug)]
-pub enum PolygonType {
-    triangle
+pub enum ShapeType {
+    Triangle
 }
 
-pub trait Polygon: PolygonClone + Debug {
+pub trait Shape: ShapeClone + Debug {
     fn mutate(&mut self, width: u32, height: u32, seed: u64);
     fn contains_pixel(&self, x: i32, y: i32) -> bool;
     fn bounding_box(&self) -> [PrimitivePoint; 2];
@@ -20,25 +19,25 @@ pub trait Polygon: PolygonClone + Debug {
     fn set_color_using(&mut self, image: &PrimitiveImage);
 }
 
-pub trait PolygonClone {
-    fn clone_box(&self) -> Box<Polygon>;
+pub trait ShapeClone {
+    fn clone_box(&self) -> Box<Shape>;
 }
 
-impl<T> PolygonClone for T
+impl<T> ShapeClone for T
 where
-    T: 'static + Polygon + Clone,
+    T: 'static + Shape + Clone,
 {
-    fn clone_box(&self) -> Box<Polygon> {
+    fn clone_box(&self) -> Box<Shape> {
         Box::new(self.clone())
     }
 }
 
-impl Clone for Box<Polygon> {
-    fn clone(&self) -> Box<Polygon> {
+impl Clone for Box<Shape> {
+    fn clone(&self) -> Box<Shape> {
         self.clone_box()
     }
 }
 
-pub trait RandomPolygon {
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<Polygon>;
+pub trait RandomShape {
+    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<Shape>;
 }

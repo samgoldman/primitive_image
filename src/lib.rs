@@ -5,6 +5,6 @@ extern crate imageproc;
 
 pub mod utilities;
 pub mod point;
-pub mod polygon;
+pub mod shape;
 pub mod triangle;
 pub mod primitive_image;
