@@ -12,6 +12,7 @@ use image::imageops::overlay;
 use crate::utilities::get_rng;
 
 const MINIMUM_DEGREES: f64 = 15.0;
+const MAXIMUM_MUTATION_ATTEMPTS: u32 = 10_000;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Triangle {
@@ -56,6 +57,12 @@ impl Triangle {
 }
 
 impl RandomPolygon for Triangle {
+
+    ///
+    /// Generate a random Triangle within the bounds given
+    /// `border_extension` is the maximum distance outside of the border a triangle is allowed to go
+    ///     It must be >= 1
+    ///
     fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<Polygon> {
         let p0 = PrimitivePoint::random_point(width, height, seed);
         let p1 = p0.random_point_in_radius(border_extension, seed);
@@ -69,6 +76,12 @@ impl RandomPolygon for Triangle {
 }
 
 impl Polygon for Triangle {
+
+    ///
+    /// Attempt to mutate this triangle
+    /// Guarantees that the triangle remains valid
+    /// Does not recolor the triangle
+    ///
     fn mutate(&mut self, width: u32, height: u32, seed: u64) {
         let mut rng = get_rng(seed);
 
@@ -82,7 +95,7 @@ impl Polygon for Triangle {
             if self.is_valid() {
                 break;
             }
-            if i > 10000 {
+            if i > MAXIMUM_MUTATION_ATTEMPTS {
                 panic!("Too many mutation loops!");
             }
         }
