@@ -209,4 +209,23 @@ mod tests {
         expected = 1;
         assert_eq!(orient_2d(p1, p2, p3), expected);
     }
+
+    #[test]
+    fn test_contains_pixel() {
+        // A right triangle with vertices on the x and y axes, and at the origin
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 5);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+
+        // In the middle of the triangle
+        assert_eq!(tri.contains_pixel(1, 1), true);
+
+        // On the lines
+        assert_eq!(tri.contains_pixel(1, 0), true);
+        assert_eq!(tri.contains_pixel(0, 1), true);
+
+        // Outside of the triangle
+        assert_eq!(tri.contains_pixel(-1, -1), false);
+    }
 }
