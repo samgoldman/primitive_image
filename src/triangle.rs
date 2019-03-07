@@ -241,4 +241,56 @@ mod tests {
         // Outside of the triangle
         assert_eq!(tri.contains_pixel(-1, -1), false);
     }
+
+    #[test]
+    fn test_is_valid() {
+        // A "triangle" with points all identical - not valid
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(0, 0);
+        let p3 = PrimitivePoint::new(0, 0);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.is_valid(), false);
+
+        // A "triangle" with two identical points - not valid
+        let p1 = PrimitivePoint::new(5, 0);
+        let p2 = PrimitivePoint::new(0, 0);
+        let p3 = PrimitivePoint::new(0, 0);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.is_valid(), false);
+
+        // A "triangle" with two identical points - not valid
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 0);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.is_valid(), false);
+
+        // A "triangle" with two identical points - not valid
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(0, 0);
+        let p3 = PrimitivePoint::new(5, 0);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.is_valid(), false);
+
+        // A right triangle with vertices at the origin and on the x-axis - valid
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 5);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.is_valid(), true);
+
+        // A right triangle with the smallest angle ~15.5 - valid
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 18);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.is_valid(), true);
+
+        // A right triangle with the smallest angle ~14.7 - not valid
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(5, 0);
+        let p3 = PrimitivePoint::new(0, 19);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.is_valid(), false);
+    }
 }
