@@ -6,7 +6,8 @@ use std::fmt::Debug;
 
 #[derive(Debug)]
 pub enum ShapeType {
-    Triangle
+    Triangle,
+    CubicBezier
 }
 
 pub trait Shape: ShapeClone + Debug {

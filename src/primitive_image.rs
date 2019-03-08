@@ -1,6 +1,7 @@
 use crate::triangle::Triangle;
+use crate::cubic_bezier::CubicBezier;
 use crate::utilities::clamp;
-use crate::shape::{Shape, RandomShape, ShapeType};
+use crate::shape::{Shape, RandomShape};
 
 use image::{open, Rgba, ImageBuffer};
 use image::imageops::{resize, Nearest};
@@ -11,6 +12,7 @@ use std::fs::OpenOptions;
 use std::error::Error;
 use std::io::Write;
 use imageproc::stats::{root_mean_squared_error};
+use crate::shape::ShapeType;
 
 const BORDER_EXTENSION: i32 = 6;
 
@@ -55,8 +57,8 @@ impl PrimitiveImage {
         PrimitiveImage {target: resized, approximation, scale, background, polygons: vec![]}
     }
 
-    pub fn target_average_color_in_polygon(&self, poly: &Box<impl Shape>) -> Rgba<u8> {
-        average_color_in_polygon(&self.target, poly)
+    pub fn target_average_color_in_shape(&self, shape: &Box<impl Shape>) -> Rgba<u8> {
+        average_color_in_shape(&self.target, shape)
     }
 
     pub fn save_to(&self, path: PathBuf) {
@@ -90,7 +92,7 @@ impl PrimitiveImage {
 
         // Add the background
         result += &format!("<rect x=\"0\" y=\"0\" width=\"{}\" height=\"{}\" fill=\"#{:X}{:X}{:X}\" />",
-                 scaled_width, scaled_height,
+                 original_width, original_height,
                  self.background.data[0], self.background.data[1], self.background.data[2]);
 
         result += &format!("<g>");
@@ -157,6 +159,7 @@ impl PrimitiveImage {
         // Initialize a random shape and give it a color
         let mut shape = match shape_type {
                 ShapeType::Triangle => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
+                ShapeType::CubicBezier => CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed)
             };
         shape.set_color_using(self);
 
@@ -216,10 +219,10 @@ impl PrimitiveImage {
     }
 }
 
-fn average_color_in_polygon(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, poly: &Box<impl Shape>) -> Rgba<u8> {
+fn average_color_in_shape(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, shape: &Box<impl Shape>) -> Rgba<u8> {
     let (width, height) = image.dimensions();
 
-    let bounding_box = poly.bounding_box();
+    let bounding_box = shape.bounding_box();
 
     let min_x = clamp(bounding_box[0].x, 0, width as i32) as u32;
     let min_y = clamp(bounding_box[0].y, 0, height as i32) as u32;
@@ -232,7 +235,7 @@ fn average_color_in_polygon(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, poly: &Box<i
 
     for x in min_x..max_x {
         for y in min_y..max_y {
-            if poly.contains_pixel(x as i32, y as i32) {
+            if shape.contains_pixel(x as i32, y as i32) {
                 num_pixels += 1;
                 let pixel = image.get_pixel(x, y);
 
