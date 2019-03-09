@@ -10,6 +10,8 @@ jobs:
       language: rust
       rust:
         - stable
+      env:
+        - ARCH=x86_64
       deploy: &deploy_base
         provider: releases
         api_key:
