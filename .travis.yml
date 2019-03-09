@@ -20,16 +20,16 @@ DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
     skip_cleanup: true
     on:
       branch: master
+    draft: true
+
+
+env: RUST_BACKTRACE=1
+rust: stable
+script:
+  - cargo test --locked
 
 matrix:
   include:
-
-    - name: Tests
-      env: RUST_BACKTRACE=1
-      rust: stable
-      script:
-        - cargo test --locked
-
     - name: Linux Binary
       env: TARGET=x86_64-unknown-linux-gnu
       rust: stable
@@ -43,6 +43,13 @@ matrix:
       rust: stable
       script: cargo build --release --target $TARGET --locked
       install: true
+      <<: *DEPLOY_TO_GITHUB
+
+    - name: Windows Binary
+      env: TARGET=x86_64-pc-windows-msvc
+      os: windows
+      rust: stable
+      script: cargo build --release --target $TARGET --locked
       <<: *DEPLOY_TO_GITHUB
 
 notifications:
