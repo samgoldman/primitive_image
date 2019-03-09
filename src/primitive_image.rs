@@ -21,7 +21,7 @@ pub struct PrimitiveImage {
     target: ImageBuffer<Rgba<u8>, Vec<u8>>,
     approximation: ImageBuffer<Rgba<u8>, Vec<u8>>,
     scale: f64,
-    pub shapes: Vec<Box<Shape>>,
+    shapes: Vec<Box<Shape>>,
     background: Rgba<u8>
 }
 impl PrimitiveImage {

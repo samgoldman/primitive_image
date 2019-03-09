@@ -138,7 +138,7 @@ impl Shape for CubicBezier {
                 (self.control1.x as f64 * scale) as i32, (self.control1.y as f64 * scale) as i32,
                 (self.control2.x as f64 * scale) as i32, (self.control2.y as f64 * scale) as i32,
                 (self.end.x as f64 * scale) as i32, (self.end.y as f64 * scale) as i32,
-                1.0)
+                scale/2.0)
     }
 
     // Suppress intellij inspection for E0308 (false positive)

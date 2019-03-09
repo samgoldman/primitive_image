@@ -141,7 +141,7 @@ impl Shape for QuadraticBezier {
                 (self.start.x as f64 * scale) as i32, (self.start.y as f64 * scale) as i32,
                 (self.control.x as f64 * scale) as i32, (self.control.y as f64 * scale) as i32,
                 (self.end.x as f64 * scale) as i32, (self.end.y as f64 * scale) as i32,
-                1.0)
+                scale / 2.0)
     }
 
     // Suppress intellij inspection for E0308 (false positive)

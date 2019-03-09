@@ -30,16 +30,12 @@ fn run(image: &mut PrimitiveImage, number_of_shapes: u32, max_age: u32, seed: u6
             "ELLIPSE" => ShapeType::Ellipse,
             "MIXED" => {
                 let r = rng.gen_range(0, 5);
-                if r == 0 {
-                    ShapeType::CubicBezier
-                } else if r == 1 {
-                    ShapeType::QuadraticBezier
-                } else if r == 2 {
-                    ShapeType::Triangle
-                } else if r == 3 {
-                    ShapeType::Rectangle
-                } else {
-                    ShapeType::Ellipse
+                match r {
+                    0 => ShapeType::Triangle,
+                    1 => ShapeType::QuadraticBezier,
+                    2 => ShapeType::CubicBezier,
+                    3 => ShapeType::Ellipse,
+                    4 => ShapeType::Rectangle
                 }
             },
             _ => panic!("Unsupported shape: {}", s)
