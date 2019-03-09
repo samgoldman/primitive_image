@@ -35,7 +35,8 @@ fn run(image: &mut PrimitiveImage, number_of_shapes: u32, max_age: u32, seed: u6
                     1 => ShapeType::QuadraticBezier,
                     2 => ShapeType::CubicBezier,
                     3 => ShapeType::Ellipse,
-                    4 => ShapeType::Rectangle
+                    4 => ShapeType::Rectangle,
+                    _ => panic!("This should never be reached if the range is set properly!")
                 }
             },
             _ => panic!("Unsupported shape: {}", s)

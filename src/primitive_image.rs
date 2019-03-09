@@ -1,6 +1,7 @@
 use crate::triangle::Triangle;
 use crate::cubic_bezier::CubicBezier;
 use crate::quadratic_bezier::QuadraticBezier;
+use crate::rectangle::Rectangle;
 use crate::shape::{Shape, RandomShape};
 
 use image::{open, Rgba, ImageBuffer};
@@ -68,7 +69,7 @@ impl PrimitiveImage {
             None => panic!("Can't save to file {:?} (no extension found!)", path),
             Some(os_str) => {
                 match os_str.to_str() {
-                    Some("svg") => self.save_to_svg(path),
+                    Some("svg") => {self.save_to_svg(path); self.save_to_img(PathBuf::from("./Examples/svg.jpg"))},
                     Some("png") | Some("jpg") | Some("bmp") | Some("ico") | Some("gif") => self.save_to_img(path),
                     _ => error!("Invalid save file type: {:?}", extension)
                 }
@@ -161,7 +162,7 @@ impl PrimitiveImage {
                 ShapeType::Triangle => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
                 ShapeType::CubicBezier => CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
                 ShapeType::QuadraticBezier => QuadraticBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                ShapeType::Rectangle => panic!("Rectangle not yet supported!"),
+                ShapeType::Rectangle => Rectangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
                 ShapeType::Ellipse => panic!("Ellipse not yet supported!")
         };
         shape.set_color_using(self);

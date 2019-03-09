@@ -68,6 +68,14 @@ impl Triangle {
         let w2 = orient_2d(self.path[0], self.path[1], p);
         w0 >= 0 && w1 >= 0 && w2 >= 0
     }
+
+    fn bounding_box(&self) -> [PrimitivePoint; 2] {
+        [PrimitivePoint::new(min(self.path[0].x, min(self.path[1].x, self.path[2].x)),
+                             min(self.path[0].y, min(self.path[1].y, self.path[2].y))),
+
+            PrimitivePoint::new(max(self.path[0].x, max(self.path[1].x, self.path[2].x)),
+                                max(self.path[0].y, max(self.path[1].y, self.path[2].y)))]
+    }
 }
 
 impl RandomShape for Triangle {
@@ -134,14 +142,6 @@ impl Shape for Triangle {
         }
 
         pixels
-    }
-
-    fn bounding_box(&self) -> [PrimitivePoint; 2] {
-        [PrimitivePoint::new(min(self.path[0].x, min(self.path[1].x, self.path[2].x)),
-                             min(self.path[0].y, min(self.path[1].y, self.path[2].y))),
-
-         PrimitivePoint::new(max(self.path[0].x, max(self.path[1].x, self.path[2].x)),
-                             max(self.path[0].y, max(self.path[1].y, self.path[2].y)))]
     }
 
     fn as_svg(&self, scale: f64) -> String {

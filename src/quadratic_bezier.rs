@@ -3,7 +3,6 @@ use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use image::Rgba;
 use imageproc::drawing::BresenhamLineIter;
-use std::cmp::{min, max};
 use rand;
 use rand::Rng;
 use image::ImageBuffer;
@@ -124,14 +123,6 @@ impl Shape for QuadraticBezier {
         }
 
         pixels
-    }
-
-    fn bounding_box(&self) -> [PrimitivePoint; 2] {
-        [PrimitivePoint::new(min(self.start.x, min(self.control.x, self.end.x)),
-                             min(self.start.y, min(self.control.y, self.end.y))),
-
-            PrimitivePoint::new(max(self.start.x, max(self.control.x, self.end.x)),
-                                max(self.start.y, max(self.control.y, self.end.y)))]
     }
 
     fn as_svg(&self, scale: f64) -> String {

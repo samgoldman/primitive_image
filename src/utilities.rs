@@ -19,6 +19,10 @@ pub fn degrees(x: f64) -> f64 {
     x * 180.0 / f64::consts::PI
 }
 
+pub fn radians(x: f64) -> f64 {
+    x / 180.0 * f64::consts::PI
+}
+
 pub fn clamp(value: i32, min_v: i32, max_v: i32) -> i32 {
     max(min_v, min(max_v, value))
 }
