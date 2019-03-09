@@ -1,6 +1,6 @@
 use crate::triangle::Triangle;
 use crate::cubic_bezier::CubicBezier;
-use crate::utilities::clamp;
+use crate::quadratic_bezier::QuadraticBezier;
 use crate::shape::{Shape, RandomShape};
 
 use image::{open, Rgba, ImageBuffer};
@@ -21,7 +21,7 @@ pub struct PrimitiveImage {
     target: ImageBuffer<Rgba<u8>, Vec<u8>>,
     approximation: ImageBuffer<Rgba<u8>, Vec<u8>>,
     scale: f64,
-    polygons: Vec<Box<Shape>>,
+    pub shapes: Vec<Box<Shape>>,
     background: Rgba<u8>
 }
 impl PrimitiveImage {
@@ -31,6 +31,12 @@ impl PrimitiveImage {
             .to_rgba();
 
         let (original_width, original_height) = original.dimensions();
+
+        let background = if background.is_some() {
+            background.unwrap()
+        } else {
+            average_color(&original)
+        };
 
         // Set the scale so that when the image is resized, the largest
         // dimension is now scale_to pixels in length
@@ -46,15 +52,9 @@ impl PrimitiveImage {
 
         let resized = resize(&original, new_width, new_height, Nearest);
 
-        let background = if background.is_some() {
-            background.unwrap()
-        } else {
-            average_color(&resized)
-        };
-
         let approximation = ImageBuffer::from_pixel(new_width, new_height, background);
 
-        PrimitiveImage {target: resized, approximation, scale, background, polygons: vec![]}
+        PrimitiveImage {target: resized, approximation, scale, background, shapes: vec![]}
     }
 
     pub fn target_average_color_in_shape(&self, shape: &Box<impl Shape>) -> Rgba<u8> {
@@ -99,7 +99,7 @@ impl PrimitiveImage {
 
 
         // Add the polygons!
-        for polygon in self.polygons.iter() {
+        for polygon in self.shapes.iter() {
             result += &format!("{}", polygon.as_svg(inverted_scale));
         }
 
@@ -141,7 +141,7 @@ impl PrimitiveImage {
 
         let mut img = ImageBuffer::from_pixel(original_width, original_height, self.background);
 
-        for poly in self.polygons.iter() {
+        for poly in self.shapes.iter() {
             img = poly.scaled_paint_on(&img, inverted_scale);
         }
 
@@ -155,12 +155,15 @@ impl PrimitiveImage {
         root_mean_squared_error(&self.target, &self.approximation)
     }
 
-    pub fn add_new_shape(&mut self, max_age: u32, shape_type: ShapeType, seed: u64) -> bool {
+    pub fn add_new_shape(&mut self, max_age: u32, shape_type: &ShapeType, seed: u64) -> bool {
         // Initialize a random shape and give it a color
         let mut shape = match shape_type {
                 ShapeType::Triangle => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                ShapeType::CubicBezier => CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed)
-            };
+                ShapeType::CubicBezier => CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
+                ShapeType::QuadraticBezier => QuadraticBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
+                ShapeType::Rectangle => panic!("Rectangle not yet supported!"),
+                ShapeType::Ellipse => panic!("Ellipse not yet supported!")
+        };
         shape.set_color_using(self);
 
         // The initial triangle is the best so far
@@ -203,7 +206,7 @@ impl PrimitiveImage {
         if best_score < self.score() {
             trace!("Adding shape {:?}", best_shape);
             self.approximation = best_shape.paint_on(&self.approximation);
-            self.polygons.push(best_shape);
+            self.shapes.push(best_shape);
             true
         } else {
             false
@@ -222,28 +225,23 @@ impl PrimitiveImage {
 fn average_color_in_shape(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, shape: &Box<impl Shape>) -> Rgba<u8> {
     let (width, height) = image.dimensions();
 
-    let bounding_box = shape.bounding_box();
-
-    let min_x = clamp(bounding_box[0].x, 0, width as i32) as u32;
-    let min_y = clamp(bounding_box[0].y, 0, height as i32) as u32;
-    let max_x = clamp(bounding_box[1].x, 0, width as i32) as u32;
-    let max_y = clamp(bounding_box[1].y, 0, height as i32) as u32;
+    let pixels = shape.get_pixels();
 
     let mut channel_sums: [i64; 4] = [0, 0, 0, 0];
 
     let mut num_pixels: i64 = 0;
 
-    for x in min_x..max_x {
-        for y in min_y..max_y {
-            if shape.contains_pixel(x as i32, y as i32) {
-                num_pixels += 1;
-                let pixel = image.get_pixel(x, y);
-
-                channel_sums[0] += pixel[0] as i64;
-                channel_sums[1] += pixel[1] as i64;
-                channel_sums[2] += pixel[2] as i64;
-            }
+    for pixel in pixels {
+        if pixel.x < 0 || pixel.x >= width as i32 || pixel.y < 0 || pixel.y >= height as i32 {
+            continue;
         }
+
+        num_pixels += 1;
+        let image_pixel = image.get_pixel(pixel.x as u32, pixel.y as u32);
+
+        channel_sums[0] += image_pixel[0] as i64;
+        channel_sums[1] += image_pixel[1] as i64;
+        channel_sums[2] += image_pixel[2] as i64;
     }
 
     let mut average_pixels: [u8; 4] = [0, 0, 0, 0];
@@ -309,7 +307,7 @@ mod tests {
     fn test_score() {
         let approximation = ImageBuffer::from_pixel(2, 2, Rgba([0, 0, 0, 128]));
         let target = ImageBuffer::from_pixel(2, 2, Rgba([10, 10, 10, 128]));
-        let primitive = PrimitiveImage{target, approximation, background: Rgba([0, 0, 0, 0]), scale: 1.0, polygons: vec![]};
+        let primitive = PrimitiveImage{target, approximation, background: Rgba([0, 0, 0, 0]), scale: 1.0, shapes: vec![]};
 
         // sqrt((Error(10.0)*Error(10.0)*NumChannelsWithError(3.0)*NumPixels(4.0))/(NumChannels(4.0)*NumPixels(4.0))
         let expected_score = sqrt((10.0*10.0*3.0*4.0)/(4.0*4.0));

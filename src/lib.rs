@@ -8,4 +8,5 @@ pub mod point;
 pub mod shape;
 pub mod triangle;
 pub mod cubic_bezier;
+pub mod quadratic_bezier;
 pub mod primitive_image;

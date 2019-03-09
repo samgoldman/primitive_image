@@ -7,12 +7,15 @@ use std::fmt::Debug;
 #[derive(Debug)]
 pub enum ShapeType {
     Triangle,
-    CubicBezier
+    CubicBezier,
+    QuadraticBezier,
+    Ellipse,
+    Rectangle
 }
 
 pub trait Shape: ShapeClone + Debug {
     fn mutate(&mut self, width: u32, height: u32, seed: u64);
-    fn contains_pixel(&self, x: i32, y: i32) -> bool;
+    fn get_pixels(&self) -> Vec<PrimitivePoint>;
     fn bounding_box(&self) -> [PrimitivePoint; 2];
     fn as_svg(&self, scale: f64) -> String;
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>>;

@@ -32,5 +32,14 @@ pub struct Opt {
 
     #[structopt(short, parse(from_occurrences))]
     /// Turn on verbosity (use multiple for different levels)
-    pub v: usize
+    pub v: usize,
+
+    #[structopt(long)]
+    /// Override the initial background color
+    pub background_color: Option<String>,
+
+    #[structopt(long, default_value = "TRIANGLE", raw(possible_values = "&[\"TRIANGLE\", \"CUBIC\", \"QUADRATIC\", \"RECTANGLE\", \"ELLIPSE\", \"MIXED\"]"))]
+    ///
+    pub shape: String
+
 }

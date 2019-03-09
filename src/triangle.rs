@@ -12,7 +12,7 @@ use image::imageops::overlay;
 use crate::utilities::get_rng;
 
 const MINIMUM_DEGREES: f64 = 15.0;
-const MAXIMUM_MUTATION_ATTEMPTS: u32 = 10_000;
+const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Triangle {
@@ -53,6 +53,20 @@ impl Triangle {
         } else {
             Box::new(Triangle {color: Rgba([0, 0, 0, 128]), path: [vertices[0], vertices[1], vertices[2]]})
         }
+    }
+
+
+
+    ///
+    /// Determine if this triangle contains the point (`x`, `y`)
+    ///
+    fn contains_pixel(&self, x: i32, y: i32) -> bool {
+        let p = PrimitivePoint::new(x, y);
+
+        let w0 = orient_2d(self.path[1], self.path[2], p);
+        let w1 = orient_2d(self.path[2], self.path[0], p);
+        let w2 = orient_2d(self.path[0], self.path[1], p);
+        w0 >= 0 && w1 >= 0 && w2 >= 0
     }
 }
 
@@ -96,21 +110,30 @@ impl Shape for Triangle {
                 break;
             }
             if i > MAXIMUM_MUTATION_ATTEMPTS {
-                panic!("Too many mutation loops!");
+                panic!("Triangle: Too many mutation loops!");
             }
         }
     }
 
-    ///
-    /// Determine if this triangle contains the point (`x`, `y`)
-    ///
-    fn contains_pixel(&self, x: i32, y: i32) -> bool {
-        let p = PrimitivePoint::new(x, y);
+    fn get_pixels(&self) -> Vec<PrimitivePoint> {
+        let bounding_box = self.bounding_box();
 
-        let w0 = orient_2d(self.path[1], self.path[2], p);
-        let w1 = orient_2d(self.path[2], self.path[0], p);
-        let w2 = orient_2d(self.path[0], self.path[1], p);
-        w0 >= 0 && w1 >= 0 && w2 >= 0
+        let min_x = bounding_box[0].x;
+        let min_y = bounding_box[0].y;
+        let max_x = bounding_box[1].x;
+        let max_y = bounding_box[1].y;
+
+        let mut pixels = vec![];
+
+        for x in min_x..max_x {
+            for y in min_y..max_y {
+                if self.contains_pixel(x as i32, y as i32) {
+                    pixels.push(PrimitivePoint::new(x, y));
+                }
+            }
+        }
+
+        pixels
     }
 
     fn bounding_box(&self) -> [PrimitivePoint; 2] {
@@ -229,25 +252,6 @@ mod tests {
         // |1 1 1|
         expected = 1;
         assert_eq!(orient_2d(p1, p2, p3), expected);
-    }
-
-    #[test]
-    fn test_contains_pixel() {
-        // A right triangle with vertices on the x and y axes, and at the origin
-        let p1 = PrimitivePoint::new(0, 0);
-        let p2 = PrimitivePoint::new(5, 0);
-        let p3 = PrimitivePoint::new(0, 5);
-        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
-
-        // In the middle of the triangle
-        assert_eq!(tri.contains_pixel(1, 1), true);
-
-        // On the lines
-        assert_eq!(tri.contains_pixel(1, 0), true);
-        assert_eq!(tri.contains_pixel(0, 1), true);
-
-        // Outside of the triangle
-        assert_eq!(tri.contains_pixel(-1, -1), false);
     }
 
     #[test]
