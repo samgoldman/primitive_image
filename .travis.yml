@@ -1,10 +1,10 @@
 jobs:
   include:
     - stage: Linux build
-      os: linux
       language: rust
       rust:
         - stable
+      os: linux
       env:
         - ARCH=x86_64
       deploy: &deploy_base
@@ -18,15 +18,19 @@ jobs:
         on:
           repo: samgoldman/primitive_image
     - stage: MacOS build
-      os: osx
       language: rust
       rust:
         - stable
+      os: osx
+      env:
+        - ARCH=x86_64
       deploy:
         <<: *deploy_base
     - stage: Window Build
-      os: osx
       language: rust
+      os: windows
+      env:
+        - ARCH=x86_64
       rust:
         - stable
       deploy:
