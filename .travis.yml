@@ -2,11 +2,9 @@ jobs:
   include:
     - stage: Linux build
       language: rust
-      rust:
-        - stable
+      rust: stable
       os: linux
-      env:
-        - ARCH=x86_64
+      env: ARCH=x86_64
       deploy: &deploy_base
         provider: releases
         api_key:
@@ -19,19 +17,15 @@ jobs:
           repo: samgoldman/primitive_image
     - stage: MacOS build
       language: rust
-      rust:
-        - stable
+      rust: stable
       os: osx
-      env:
-        - ARCH=x86_64
+      env: ARCH=x86_64
       deploy:
         <<: *deploy_base
     - stage: Window Build
       language: rust
       os: windows
-      env:
-        - ARCH=x86_64
-      rust:
-        - stable
+      env: ARCH=x86_64
+      rust: stable
       deploy:
         <<: *deploy_base
