@@ -1,27 +1,36 @@
 language: rust
 rust:
 - stable
-os:
-- linux
-- osx
-- windows
-env:
-- ARCH=x86_64
-- ARCH=i686
 
-before_deploy:
-  # Set up git user name and tag this commit
-  - git config --local user.name samgoldman
-  - git config --local user.email sgoldman216@gmail.com
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG
 
-deploy:
-  provider: releases
-  api_key:
-    secure: Nn53efN4SdwxHgpDWUDdX+sBWkZM0OOM99+a1NgFvPmqaI0TZs7CfPDl1D9jJIhFWk087A15/O69BNfOxfRKE4CDZJHIdj2MW64xKM04oFxXbY4lKsLy5DxnuwF9w7tRL/qSieqIn+uY0gVoKmku80c0xMMMdS93QmqQUJb4QgxJcX4ZDPI5q1JZbJ3JLST1nRncobmzwqG6qBrpY/DY+V+Xr4x+C+hNARoCQbqRfx4RsuN0Svn5QN8E+7MIp8vBM96R28aCtg1+YtvJQGYaBqaHTtr9bQcXsEq1I1RaIZsEXaCjF6MUTz2KrFd5Iv5Fh7epALVYKK4ZA90379enKUlL4IcUCqPh7BcJmfwNPSHkDItkeezr54oquDnv+oV0ku84kpCLIq9k4yL/70efWYtDOT9utp1bD9EDi49pnv4cWI6r/wUZoxBj4OL0b4Oy8t+1l1VI5j6ey/DsbtK27zEi+upHdXu17cwrZ7QQP9QevKFmQdHkSkMNjk3+1Y1VV1HVw0SMxysqft03NiGrXo1HW76/lsVWRNk/fU1obSABHqFm670mBo150zGYEotGCeMA5QNSb+othVeExkKkQw2VCRnDaByqyFcrFo4YliU2FeVG1oq/tfs5m1uSdIWQ+ZXuVaCkMoOnzhp5vWEOs9kPR9pQ34tPY3foUsDcVSg=
-  file: target/release/primitve_image*
-  on:
-    repo: samgoldman/primitive_image
-  skip_cleanup: true
-  draft: true
+jobs:
+  include:
+    - stage: Linux build
+      os: linux
+      language: rust
+      rust:
+        - stable
+      deploy: &deploy_base
+        provider: releases
+        api_key:
+          secure: Nn53efN4SdwxHgpDWUDdX+sBWkZM0OOM99+a1NgFvPmqaI0TZs7CfPDl1D9jJIhFWk087A15/O69BNfOxfRKE4CDZJHIdj2MW64xKM04oFxXbY4lKsLy5DxnuwF9w7tRL/qSieqIn+uY0gVoKmku80c0xMMMdS93QmqQUJb4QgxJcX4ZDPI5q1JZbJ3JLST1nRncobmzwqG6qBrpY/DY+V+Xr4x+C+hNARoCQbqRfx4RsuN0Svn5QN8E+7MIp8vBM96R28aCtg1+YtvJQGYaBqaHTtr9bQcXsEq1I1RaIZsEXaCjF6MUTz2KrFd5Iv5Fh7epALVYKK4ZA90379enKUlL4IcUCqPh7BcJmfwNPSHkDItkeezr54oquDnv+oV0ku84kpCLIq9k4yL/70efWYtDOT9utp1bD9EDi49pnv4cWI6r/wUZoxBj4OL0b4Oy8t+1l1VI5j6ey/DsbtK27zEi+upHdXu17cwrZ7QQP9QevKFmQdHkSkMNjk3+1Y1VV1HVw0SMxysqft03NiGrXo1HW76/lsVWRNk/fU1obSABHqFm670mBo150zGYEotGCeMA5QNSb+othVeExkKkQw2VCRnDaByqyFcrFo4YliU2FeVG1oq/tfs5m1uSdIWQ+ZXuVaCkMoOnzhp5vWEOs9kPR9pQ34tPY3foUsDcVSg=
+        skip_cleanup: true
+        file_glob: true
+        file: target/release/primitve_image*
+        draft: true
+        on:
+          repo: samgoldman/primitive_image
+    - stage: MacOS build
+      os: osx
+      language: rust
+      rust:
+        - stable
+      deploy:
+        <<: *deploy_base
+    - stage: Window Build
+      os: osx
+      language: rust
+      rust:
+        - stable
+      deploy:
+        <<: *deploy_base
