@@ -69,7 +69,7 @@ impl PrimitiveImage {
             None => panic!("Can't save to file {:?} (no extension found!)", path),
             Some(os_str) => {
                 match os_str.to_str() {
-                    Some("svg") => {self.save_to_svg(path); self.save_to_img(PathBuf::from("./Examples/svg.jpg"))},
+                    Some("svg") => {self.save_to_svg(path)},
                     Some("png") | Some("jpg") | Some("bmp") | Some("ico") | Some("gif") => self.save_to_img(path),
                     _ => error!("Invalid save file type: {:?}", extension)
                 }
