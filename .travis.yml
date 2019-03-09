@@ -1,0 +1,15 @@
+
+---
+language: rust
+rust:
+  - stable
+  - 1.32.0
+
+os:
+  - linux
+  - osx
+  - windows
+
+env:
+  - ARCH=x86_64
+  - ARCH=i686
