@@ -1,27 +1,50 @@
 language: rust
-rust:
-- stable
-os:
-- linux
-- osx
-- windows
-env:
-- ARCH=x86_64
+sudo: false
 
-before_deploy:
-  # Set up git user name and tag this commit
-  - git config --local user.name samgoldman
-  - git config --local user.email sgoldman216@gmail.com
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG
+GH_TOKEN: &GH_TOKEN
+  secure: Nn53efN4SdwxHgpDWUDdX+sBWkZM0OOM99+a1NgFvPmqaI0TZs7CfPDl1D9jJIhFWk087A15/O69BNfOxfRKE4CDZJHIdj2MW64xKM04oFxXbY4lKsLy5DxnuwF9w7tRL/qSieqIn+uY0gVoKmku80c0xMMMdS93QmqQUJb4QgxJcX4ZDPI5q1JZbJ3JLST1nRncobmzwqG6qBrpY/DY+V+Xr4x+C+hNARoCQbqRfx4RsuN0Svn5QN8E+7MIp8vBM96R28aCtg1+YtvJQGYaBqaHTtr9bQcXsEq1I1RaIZsEXaCjF6MUTz2KrFd5Iv5Fh7epALVYKK4ZA90379enKUlL4IcUCqPh7BcJmfwNPSHkDItkeezr54oquDnv+oV0ku84kpCLIq9k4yL/70efWYtDOT9utp1bD9EDi49pnv4cWI6r/wUZoxBj4OL0b4Oy8t+1l1VI5j6ey/DsbtK27zEi+upHdXu17cwrZ7QQP9QevKFmQdHkSkMNjk3+1Y1VV1HVw0SMxysqft03NiGrXo1HW76/lsVWRNk/fU1obSABHqFm670mBo150zGYEotGCeMA5QNSb+othVeExkKkQw2VCRnDaByqyFcrFo4YliU2FeVG1oq/tfs5m1uSdIWQ+ZXuVaCkMoOnzhp5vWEOs9kPR9pQ34tPY3foUsDcVSg=
 
-deploy:
-  provider: releases
-  api_key:
-    secure: Nn53efN4SdwxHgpDWUDdX+sBWkZM0OOM99+a1NgFvPmqaI0TZs7CfPDl1D9jJIhFWk087A15/O69BNfOxfRKE4CDZJHIdj2MW64xKM04oFxXbY4lKsLy5DxnuwF9w7tRL/qSieqIn+uY0gVoKmku80c0xMMMdS93QmqQUJb4QgxJcX4ZDPI5q1JZbJ3JLST1nRncobmzwqG6qBrpY/DY+V+Xr4x+C+hNARoCQbqRfx4RsuN0Svn5QN8E+7MIp8vBM96R28aCtg1+YtvJQGYaBqaHTtr9bQcXsEq1I1RaIZsEXaCjF6MUTz2KrFd5Iv5Fh7epALVYKK4ZA90379enKUlL4IcUCqPh7BcJmfwNPSHkDItkeezr54oquDnv+oV0ku84kpCLIq9k4yL/70efWYtDOT9utp1bD9EDi49pnv4cWI6r/wUZoxBj4OL0b4Oy8t+1l1VI5j6ey/DsbtK27zEi+upHdXu17cwrZ7QQP9QevKFmQdHkSkMNjk3+1Y1VV1HVw0SMxysqft03NiGrXo1HW76/lsVWRNk/fU1obSABHqFm670mBo150zGYEotGCeMA5QNSb+othVeExkKkQw2VCRnDaByqyFcrFo4YliU2FeVG1oq/tfs5m1uSdIWQ+ZXuVaCkMoOnzhp5vWEOs9kPR9pQ34tPY3foUsDcVSg=
-  file_glob: true
-  file: target/debug/deps/primitve_image*
-  on:
-    repo: samgoldman/primitive_image
-  skip_cleanup: true
-  draft: true
+DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
+  before_deploy:
+    - git config --local user.name "Sam Goldman"
+    - git config --local user.email "sgoldman216@gmail.com"
+    - name="primitive_image-$TRAVIS_TAG-$TARGET"
+    - mkdir $name
+    - cp target/$TARGET/release/primitive_image $name/
+    - cp README.md LICENSE-MIT LICENSE-APACHE $name/
+    - tar czvf $name.tar.gz $name
+  deploy:
+    provider: releases
+    api_key: *GH_TOKEN
+    file: primitive_image-$TRAVIS_TAG-$TARGET.tar.gz
+    skip_cleanup: true
+    on:
+      branch: master
+
+matrix:
+  include:
+
+    - name: Tests
+      env: RUST_BACKTRACE=1
+      rust: stable
+      script:
+        - cargo test --locked
+
+    - name: Linux Binary
+      env: TARGET=x86_64-unknown-linux-gnu
+      rust: stable
+      before_script: rustup target add $TARGET
+      script: cargo build --release --target $TARGET --locked --features vendored-openssl
+      <<: *DEPLOY_TO_GITHUB
+
+    - name: macOS Binary
+      env: TARGET=x86_64-apple-darwin
+      os: osx
+      rust: stable
+      script: cargo build --release --target $TARGET --locked
+      install: true
+      <<: *DEPLOY_TO_GITHUB
+
+notifications:
+  email:
+    on_success: never
