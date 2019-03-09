@@ -9,6 +9,13 @@ env:
 - ARCH=x86_64
 - ARCH=i686
 
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name samgoldman
+  - git config --local user.email sgoldman216@gmail.com
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG
+
 deploy:
   provider: releases
   api_key:
@@ -16,4 +23,5 @@ deploy:
   file: target/release/primitve_image*
   on:
     repo: samgoldman/primitive_image
+  skip_cleanup: true
   draft: true
