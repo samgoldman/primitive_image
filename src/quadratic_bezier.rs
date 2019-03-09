@@ -9,6 +9,7 @@ use image::ImageBuffer;
 use imageproc::drawing::draw_cubic_bezier_curve;
 use image::imageops::overlay;
 use crate::utilities::get_rng;
+use crate::utilities::rgb_to_hex;
 
 const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 
@@ -126,8 +127,8 @@ impl Shape for QuadraticBezier {
     }
 
     fn as_svg(&self, scale: f64) -> String {
-        format!("<path stroke=\"#{:X}{:X}{:X}\" stroke-opacity=\"{}\" fill=\"none\" d=\"M{} {} Q{} {}, {} {}\" stroke-width=\"{}\" />",
-                self.color.data[0], self.color.data[1], self.color.data[2],
+        format!("<path stroke=\"{}\" stroke-opacity=\"{}\" fill=\"none\" d=\"M{} {} Q{} {}, {} {}\" stroke-width=\"{}\" />",
+                rgb_to_hex(self.color),
                 self.color.data[3] as f64 / 255.0,
                 (self.start.x as f64 * scale) as i32, (self.start.y as f64 * scale) as i32,
                 (self.control.x as f64 * scale) as i32, (self.control.y as f64 * scale) as i32,

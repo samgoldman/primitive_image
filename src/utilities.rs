@@ -3,6 +3,7 @@ use std::cmp::{min, max};
 use std::time::{SystemTime, UNIX_EPOCH};
 use rand;
 use rand::prelude::*;
+use image::Rgba;
 
 /// Return the square root of x
 pub fn sqrt(x: f64) -> f64 {
@@ -42,6 +43,10 @@ fn get_time_seed() -> u64 {
     seed
 }
 
+pub fn rgb_to_hex(color: Rgba<u8>) -> String {
+    format!("#{:02X}{:02X}{:02X}", color.data[0], color.data[1], color.data[2])
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -62,5 +67,20 @@ mod tests {
         assert_eq!(clamp(10, -10, 20), 10);
         assert_eq!(clamp(-20, -10, 20), -10);
         assert_eq!(clamp(30, -10, 20), 20);
+    }
+
+    #[test]
+    fn test_rgb_to_hex() {
+        let result = rgb_to_hex(Rgba([0, 0, 0, 0]));
+        let test: &str = result.as_ref();
+        assert_eq!(test, "#000000");
+
+        let result = rgb_to_hex(Rgba([255, 0, 0, 0]));
+        let test: &str = result.as_ref();
+        assert_eq!(test, "#FF0000");
+
+        let result = rgb_to_hex(Rgba([0, 12, 0, 0]));
+        let test: &str = result.as_ref();
+        assert_eq!(test, "#000C00");
     }
 }

@@ -12,8 +12,7 @@ if: tag IS blank
       - name="primitive_image-$TRAVIS_TAG-$TARGET"
       - mkdir $name
       - cp target/$TARGET/release/primitive_image $name/
-      #- cp README.md LICENSE-MIT LICENSE-APACHE $name/
-      - tar czvf $name.tar.gz $name
+      - zip $name.zip $name
     deploy:
       provider: releases
       api_key: *GH_TOKEN

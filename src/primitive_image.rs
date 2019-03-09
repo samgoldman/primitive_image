@@ -14,6 +14,7 @@ use std::error::Error;
 use std::io::Write;
 use imageproc::stats::{root_mean_squared_error};
 use crate::shape::ShapeType;
+use crate::utilities::rgb_to_hex;
 
 const BORDER_EXTENSION: i32 = 6;
 
@@ -92,9 +93,9 @@ impl PrimitiveImage {
         //result += &format!("<g transform=\"scale({})\">", inverted_scale);
 
         // Add the background
-        result += &format!("<rect x=\"0\" y=\"0\" width=\"{}\" height=\"{}\" fill=\"#{:X}{:X}{:X}\" />",
+        result += &format!("<rect x=\"0\" y=\"0\" width=\"{}\" height=\"{}\" fill=\"{}\" />",
                  original_width, original_height,
-                 self.background.data[0], self.background.data[1], self.background.data[2]);
+                 rgb_to_hex(self.background));
 
         result += &format!("<g>");
 

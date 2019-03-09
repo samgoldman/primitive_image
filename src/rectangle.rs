@@ -14,6 +14,7 @@ use image::imageops::overlay;
 use crate::utilities::{get_rng, clamp, radians};
 use rand::distributions::Distribution;
 use rand::distributions::Normal;
+use crate::utilities::rgb_to_hex;
 
 const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 
@@ -116,8 +117,8 @@ impl Shape for Rectangle {
 
         let p1 = PrimitivePoint::new(min_x, min_y);
 
-        format!("<rect fill=\"#{:X}{:X}{:X}\" fill-opacity=\"{:.5}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" transform=\"rotate({} {} {})\"/>",
-                self.color.data[0], self.color.data[1], self.color.data[2],
+        format!("<rect fill=\"{}\" fill-opacity=\"{:.5}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" transform=\"rotate({} {} {})\"/>",
+                rgb_to_hex(self.color),
                 self.color.data[3] as f64 / 255.0,
                 p1.x, p1.y,
                 self.width as f64 * scale, self.height as f64 * scale,
