@@ -116,16 +116,12 @@ impl Shape for Ellipse {
     fn as_svg(&self, scale: f64) -> String {
         let new_center = PrimitivePoint::new((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32);
 
-        let min_x = new_center.x - ((self.a as f64 * scale) as i32);
-        let min_y = new_center.y - ((self.b as f64 * scale) as i32);
-
-        let p1 = PrimitivePoint::new(min_x, min_y);
         format!("<ellipse fill=\"{}\" fill-opacity=\"{:.5}\" cx=\"{}\" cy=\"{}\" rx=\"{}\" ry=\"{}\" transform=\"rotate({} {} {})\"/>",
                 rgb_to_hex(self.color),
                 self.color.data[3] as f64 / 255.0,
-                p1.x, p1.y,
+                new_center.x, new_center.y,
                 self.a as f64 * scale, self.b as f64 * scale,
-                self.angle, p1.x as f64 + self.a as f64 * scale, p1.y as f64 + self.b as f64 * scale)
+                -1*self.angle as i32, new_center.x, new_center.y)
     }
 
     // Suppress intellij inspection for E0308 (false positive)
