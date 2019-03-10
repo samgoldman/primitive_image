@@ -11,39 +11,23 @@ DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
     - name="primitive_image-$TRAVIS_TAG-$TARGET"
     - mkdir $name
     - cp target/$TARGET/release/primitive_image $name/
-    #- cp README.md LICENSE-MIT LICENSE-APACHE $name/
-    - tar czvf $name.tar.gz $name
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      zip -r $name.zip $name;
+      fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      zip -r $name.zip $name;
+      fi
+    - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
+      7z a $name.zip $name;
+      fi
   deploy:
     provider: releases
     api_key: *GH_TOKEN
-    file: primitive_image-$TRAVIS_TAG-$TARGET.tar.gz
+    file: primitive_image-$TRAVIS_TAG-$TARGET.zip
     skip_cleanup: true
     on:
       branch: master
-  DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
-    before_deploy:
-      - git config --local user.name "Sam Goldman"
-      - git config --local user.email "sgoldman216@gmail.com"
-      - name="primitive_image-$TRAVIS_TAG-$TARGET"
-      - mkdir $name
-      - cp target/$TARGET/release/primitive_image $name/
-      - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-        zip -r $name.zip $name;
-        fi
-      - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-        zip -r $name.zip $name;
-        fi
-      - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
-        7z a $name.zip $name;
-        fi
-    deploy:
-      provider: releases
-      api_key: *GH_TOKEN
-      file: primitive_image-$TRAVIS_TAG-$TARGET.zip
-      skip_cleanup: true
-      on:
-        branch: master
-        tag: true
+      tags: true
 
 jobs:
   include:
