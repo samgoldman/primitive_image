@@ -27,14 +27,23 @@ DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
       - name="primitive_image-$TRAVIS_TAG-$TARGET"
       - mkdir $name
       - cp target/$TARGET/release/primitive_image $name/
-      - zip $name.zip $name
+      - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+        zip czvf $name.zip $name
+        fi
+      - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+        zip $name.zip $name
+        fi
+      - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
+        7z a $name.zip subdir\
+        fi
     deploy:
       provider: releases
       api_key: *GH_TOKEN
-      file: primitive_image-$TRAVIS_TAG-$TARGET.tar.gz
+      file: primitive_image-$TRAVIS_TAG-$TARGET.zip
       skip_cleanup: true
       on:
         branch: master
+        tag: true
 
 jobs:
   include:
