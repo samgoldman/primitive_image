@@ -10,4 +10,5 @@ pub mod triangle;
 pub mod cubic_bezier;
 pub mod quadratic_bezier;
 pub mod rectangle;
+pub mod ellipse;
 pub mod primitive_image;

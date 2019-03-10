@@ -4,6 +4,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use rand;
 use rand::prelude::*;
 use image::Rgba;
+use crate::point::PrimitivePoint;
 
 /// Return the square root of x
 pub fn sqrt(x: f64) -> f64 {
@@ -45,6 +46,14 @@ fn get_time_seed() -> u64 {
 
 pub fn rgb_to_hex(color: Rgba<u8>) -> String {
     format!("#{:02X}{:02X}{:02X}", color.data[0], color.data[1], color.data[2])
+}
+
+pub fn rotate_point(point: &mut PrimitivePoint, center: PrimitivePoint, angle: u32) {
+    let cos_a = radians(angle as f64).cos();
+    let sin_a = radians(angle as f64).sin();
+
+    point.x = (((point.x - center.x) as f64) * cos_a - ((point.y - center.y) as f64) * sin_a) as i32 + center.x;
+    point.y = (((point.x - center.x) as f64) * sin_a + ((point.y - center.y) as f64) * cos_a) as i32 + center.y;
 }
 
 

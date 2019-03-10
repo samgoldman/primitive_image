@@ -2,6 +2,7 @@ use crate::triangle::Triangle;
 use crate::cubic_bezier::CubicBezier;
 use crate::quadratic_bezier::QuadraticBezier;
 use crate::rectangle::Rectangle;
+use crate::ellipse::Ellipse;
 use crate::shape::{Shape, RandomShape};
 
 use image::{open, Rgba, ImageBuffer};
@@ -164,7 +165,7 @@ impl PrimitiveImage {
                 ShapeType::CubicBezier => CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
                 ShapeType::QuadraticBezier => QuadraticBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
                 ShapeType::Rectangle => Rectangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                ShapeType::Ellipse => panic!("Ellipse not yet supported!")
+                ShapeType::Ellipse => Ellipse::random(self.width(), self.height(), BORDER_EXTENSION, seed)
         };
         shape.set_color_using(self);
 
