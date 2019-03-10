@@ -36,6 +36,7 @@ For more detailed approximations (-n 500 will use 500 shapes):
 
 ## Future work
 
+- Fix ellipse drawing at scale bug (currently can't output as other than SVG)
 - Add progressive image saving
 - Add GIF output
 - Add generic polygons as an option

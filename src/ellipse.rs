@@ -21,8 +21,8 @@ const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 pub struct Ellipse {
     pub color: image::Rgba<u8>,
     center: PrimitivePoint,
-    a: u32,
-    b: u32,
+    a: i32,
+    b: i32,
     angle: u32 // In degrees
 }
 
@@ -51,8 +51,8 @@ impl RandomShape for Ellipse {
         let mut rng = get_rng(seed);
 
         let center = PrimitivePoint::random_point(width, height, seed);
-        let a = rng.gen_range(5, max(width, height) / 2);
-        let b = rng.gen_range(5, max(width, height) / 2);
+        let a = rng.gen_range(5, max(width as i32, height as i32) / 2);
+        let b = rng.gen_range(5, max(width as i32, height as i32) / 2);
         let angle = rng.gen_range(0, 180);
 
         let mut ellipse = Ellipse{center, a, b, angle, color: Rgba([0, 0, 0, 128])};
@@ -76,8 +76,8 @@ impl Shape for Ellipse {
 
             match r {
                 0 => self.center.mutate(width, height, seed),
-                1 => self.a = clamp(self.a as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32) as u32,
-                2 => self.b = clamp(self.b as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32) as u32,
+                1 => self.a = clamp(self.a as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32),
+                2 => self.b = clamp(self.b as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32),
                 3 => self.angle = rng.gen_range(0, 180),
                 _ => {}
             }
