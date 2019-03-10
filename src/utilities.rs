@@ -52,8 +52,14 @@ pub fn rotate_point(point: &mut PrimitivePoint, center: PrimitivePoint, angle: u
     let cos_a = radians(angle as f64).cos();
     let sin_a = radians(angle as f64).sin();
 
-    point.x = (((point.x - center.x) as f64) * cos_a - ((point.y - center.y) as f64) * sin_a) as i32 + center.x;
-    point.y = (((point.x - center.x) as f64) * sin_a + ((point.y - center.y) as f64) * cos_a) as i32 + center.y;
+    point.x -= center.x;
+    point.y -= center.y;
+
+    let new_x = point.x as f64 * cos_a - point.y as f64 * sin_a;
+    let new_y = point.x as f64 * sin_a + point.y as f64 * cos_a;
+
+    point.x = new_x as i32 + center.x;
+    point.y = new_y as i32 + center.y;
 }
 
 
@@ -91,5 +97,23 @@ mod tests {
         let result = rgb_to_hex(Rgba([0, 12, 0, 0]));
         let test: &str = result.as_ref();
         assert_eq!(test, "#000C00");
+    }
+
+    #[test]
+    fn test_rotate_point() {
+        let mut p = PrimitivePoint::new(20, 10);
+        let center = PrimitivePoint::new(10, 10);
+        let angle = 90;
+        let expected = PrimitivePoint::new(10, 20);
+        rotate_point(&mut p, center, angle);
+        assert_eq!(p, expected);
+
+
+        let mut p = PrimitivePoint::new(20, 10);
+        let center = PrimitivePoint::new(10, 10);
+        let angle = 180;
+        let expected = PrimitivePoint::new(0, 10);
+        rotate_point(&mut p, center, angle);
+        assert_eq!(p, expected);
     }
 }

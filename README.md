@@ -27,6 +27,13 @@ From a terminal:
 |--shape|(optional) The shape to use for the approximations (TRIANGLE, RECTANGLE, ELLIPSE, QUADRATIC, CUBIC, MIXED). Defaults to TRIANGLE.|
 |--background-color| (optional) The initial background color in RRGGBB format. Defaults to the average color of the input image. |
 
+To start, I'd suggest you start with a run with these settings (the -v allows you to see progress):
+
+```primitive_image.exe -i path/to/image.jpg -o path/to/out.svg -v```
+
+For more detailed approximations (-n 500 will use 500 shapes):
+```primitive_image.exe -i path/to/image.jpg -o path/to/out.svg -n 500 -v```
+
 ## Future work
 
 - Add progressive image saving
