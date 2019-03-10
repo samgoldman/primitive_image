@@ -12,7 +12,7 @@ DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
     - mkdir $name
     - cp target/$TARGET/release/primitive_image $name/
     - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      strip $name;
+      strip $name/primitive_image;
       zip -r $name.zip $name;
       fi
     - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
