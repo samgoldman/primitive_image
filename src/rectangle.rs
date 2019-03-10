@@ -8,7 +8,7 @@ use rand::Rng;
 use image::ImageBuffer;
 use imageproc::drawing::draw_filled_rect;
 use imageproc::rect::Rect;
-use imageproc::affine::rotate;
+use imageproc::affine::rotate_with_default;
 use imageproc::affine::Interpolation::Nearest;
 use image::imageops::overlay;
 use crate::utilities::{get_rng, clamp, radians, rgb_to_hex, rotate_point};
@@ -133,7 +133,7 @@ impl Shape for Rectangle {
         let mut output = image.clone();
 
         rect_image = draw_filled_rect(&rect_image, Rect::at(self.center.x, self.center.y).of_size(self.width, self.height), self.color);
-        rect_image = rotate(&rect_image, (self.center.x as f32, self.center.y as f32), -1.0*radians(self.angle as f64) as f32, Nearest);
+        rect_image = rotate_with_default(&rect_image, (self.center.x as f32, self.center.y as f32), -1.0*radians(self.angle as f64) as f32, Rgba([0, 0, 0, 0]),Nearest);
 
         overlay(&mut output, &rect_image, 0, 0);
 
@@ -149,7 +149,7 @@ impl Shape for Rectangle {
         let mut output = image.clone();
 
         rect_image = draw_filled_rect(&rect_image, Rect::at((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32).of_size(((self.width as f64) * scale) as u32, ((self.height as f64) * scale) as u32), self.color);
-        rect_image = rotate(&rect_image, ((self.center.x as f64 * scale) as f32, (self.center.y as f64 * scale) as f32), -1.0*radians(self.angle as f64) as f32, Nearest);
+        rect_image = rotate_with_default(&rect_image, ((self.center.x as f64 * scale) as f32, (self.center.y as f64 * scale) as f32), -1.0*radians(self.angle as f64) as f32, Rgba([0, 0, 0, 0]),Nearest);
 
         overlay(&mut output, &rect_image, 0, 0);
 

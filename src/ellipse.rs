@@ -7,7 +7,7 @@ use rand;
 use rand::Rng;
 use image::ImageBuffer;
 use imageproc::drawing::draw_filled_ellipse;
-use imageproc::affine::rotate;
+use imageproc::affine::rotate_with_default;
 use imageproc::affine::Interpolation::Nearest;
 use image::imageops::overlay;
 use crate::utilities::{get_rng, clamp, radians, rgb_to_hex, rotate_point};
@@ -29,10 +29,10 @@ pub struct Ellipse {
 impl Ellipse {
 
     ///
-    /// Determine if this rectangle is valid
     ///
-    fn is_valid(&self) -> bool {
-        true
+    ///
+    fn is_valid(&self, width: u32, height: u32) -> bool {
+        (self.a as f64) < (width as f64 * 0.1) && (self.b as f64) < (height as f64 * 0.1)
     }
 
     fn un_rotated_contains_pixel(&self, x: i32, y: i32) -> bool {
@@ -51,9 +51,9 @@ impl RandomShape for Ellipse {
         let mut rng = get_rng(seed);
 
         let center = PrimitivePoint::random_point(width, height, seed);
-        let a = rng.gen_range(5, max(width as i32, height as i32) / 2);
-        let b = rng.gen_range(5, max(width as i32, height as i32) / 2);
-        let angle = rng.gen_range(0, 180);
+        let a = rng.gen_range(1, max(width as i32, height as i32) / 10);
+        let b = rng.gen_range(1, max(width as i32, height as i32) / 10);
+        let angle = rng.gen_range(0, 360);
 
         let mut ellipse = Ellipse{center, a, b, angle, color: Rgba([0, 0, 0, 128])};
         ellipse.mutate(width, height, seed);
@@ -66,7 +66,7 @@ impl Shape for Ellipse {
 
     fn mutate(&mut self, width: u32, height: u32, seed: u64) {
         let mut rng = get_rng(seed);
-        let normal = Normal::new(0.0, 16.0);
+        let normal = Normal::new(0.0, 5.0);
 
 
         let mut i = 0;
@@ -76,13 +76,13 @@ impl Shape for Ellipse {
 
             match r {
                 0 => self.center.mutate(width, height, seed),
-                1 => self.a = clamp(self.a as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32),
-                2 => self.b = clamp(self.b as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32),
-                3 => self.angle = rng.gen_range(0, 180),
+                1 => self.a = clamp(self.a as i32 + (normal.sample(&mut rng) as i32), 1, max(width, height) as i32),
+                2 => self.b = clamp(self.b as i32 + (normal.sample(&mut rng) as i32), 1, max(width, height) as i32),
+                3 => self.angle = clamp(self.angle as i32 + (normal.sample(&mut rng) as i32), 0, 359) as u32,
                 _ => {}
             }
 
-            if self.is_valid() {
+            if self.is_valid(width, height) {
                 break;
             }
             if i > MAXIMUM_MUTATION_ATTEMPTS {
@@ -133,7 +133,7 @@ impl Shape for Ellipse {
         let mut output = image.clone();
 
         ell_image = draw_filled_ellipse(&ell_image, (self.center.x, self.center.y), self.a as i32, self.b as i32, self.color);
-        ell_image = rotate(&ell_image, (self.center.x as f32, self.center.y as f32), -1.0*radians(self.angle as f64) as f32, Nearest);
+        ell_image = rotate_with_default(&ell_image, (self.center.x as f32, self.center.y as f32), -1.0*radians(self.angle as f64) as f32, Rgba([0, 0, 0, 0]),Nearest);
 
         overlay(&mut output, &ell_image, 0, 0);
 
@@ -149,7 +149,7 @@ impl Shape for Ellipse {
         let mut output = image.clone();
 
         ell_image = draw_filled_ellipse(&ell_image, ((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32), (self.a as f64 * scale) as i32, (self.b as f64 * scale) as i32, self.color);
-        ell_image = rotate(&ell_image, ((self.center.x as f64 * scale) as f32, (self.center.y as f64 * scale) as f32), -1.0*radians(self.angle as f64) as f32, Nearest);
+        ell_image = rotate_with_default(&ell_image, ((self.center.x as f64 * scale) as f32, (self.center.y as f64 * scale) as f32), -1.0*radians(self.angle as f64) as f32, Rgba([0, 0, 0, 0]),Nearest);
 
         overlay(&mut output, &ell_image, 0, 0);
 

@@ -36,7 +36,8 @@ For more detailed approximations (-n 500 will use 500 shapes):
 
 ## Future work
 
-- Fix ellipse drawing at scale bug (currently can't output as other than SVG)
+- When painted on images, ellipses (and probably rectangles) get cut off when rotated (if they're too close to the edge.
+I need to find a way to fix that.
 - Add progressive image saving
 - Add GIF output
 - Add generic polygons as an option

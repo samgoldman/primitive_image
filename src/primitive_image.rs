@@ -207,7 +207,7 @@ impl PrimitiveImage {
         // Only add the shape if it is an improvement over the current approximation
         // Return true if a shape was added
         if best_score < self.score() {
-            trace!("Adding shape {:?}", best_shape);
+            trace!("Returning shape {:?}", best_shape);
             self.approximation = best_shape.paint_on(&self.approximation);
             self.shapes.push(best_shape);
             true
