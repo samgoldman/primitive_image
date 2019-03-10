@@ -1,5 +1,9 @@
 # Primitive Image - Rust
 
+[![Build Status](https://travis-ci.org/samgoldman/primitive_image.svg?branch=master)](https://travis-ci.org/samgoldman/primitive_image)
+
+Approximate images using SVGs.
+
 This is mostly a port of https://github.com/fogleman/primitive (written in Go), with a new thing or two. I encountered that project few years ago and recently used it to generate over a thousand SVG approximations as placeholders for an [image gallery](www.samueltgoldman.com/china) (while lazy loading the images). I decided I wanted to understand how it worked and I wanted to practice my Rust skills (this is my second project in the language), so I took about a week and wrote this.
 
 I have implemented or will implement most features from the original project. Currently, my version can't create ellipses, although that is the next task.
