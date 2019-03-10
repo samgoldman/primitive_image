@@ -34,7 +34,7 @@ DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
         zip $name.zip $name;
         fi
       - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
-        7z a $name.zip subdir\;
+        7z a $name.zip $name;
         fi
     deploy:
       provider: releases
