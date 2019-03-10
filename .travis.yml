@@ -28,13 +28,13 @@ DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
       - mkdir $name
       - cp target/$TARGET/release/primitive_image $name/
       - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-        zip czvf $name.zip $name
+        zip $name.zip $name;
         fi
       - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-        zip $name.zip $name
+        zip $name.zip $name;
         fi
       - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
-        7z a $name.zip subdir\
+        7z a $name.zip subdir\;
         fi
     deploy:
       provider: releases
