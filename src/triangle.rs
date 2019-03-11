@@ -64,10 +64,20 @@ impl Triangle {
     fn contains_pixel(&self, x: i32, y: i32) -> bool {
         let p = PrimitivePoint::new(x, y);
 
-        let w0 = orient_2d(self.path[1], self.path[2], p);
-        let w1 = orient_2d(self.path[2], self.path[0], p);
-        let w2 = orient_2d(self.path[0], self.path[1], p);
-        w0 >= 0 && w1 >= 0 && w2 >= 0
+        let mut path2: Vec<PrimitivePoint> = self.path.to_vec();
+
+        path2.sort_by(|a, b| {
+            if a.x == b.x {
+                a.y.cmp(&b.y)
+            } else {
+                b.x.cmp(&a.x)
+            }
+        });
+
+        let w0 = orient_2d(path2[1], path2[2], p);
+        let w1 = orient_2d(path2[2], path2[0], p);
+        let w2 = orient_2d(path2[0], path2[1], p);
+        (w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)
     }
 
     fn bounding_box(&self) -> [PrimitivePoint; 2] {
@@ -134,8 +144,8 @@ impl Shape for Triangle {
 
         let mut pixels = vec![];
 
-        for x in min_x..max_x {
-            for y in min_y..max_y {
+        for x in min_x..(max_x+1) {
+            for y in min_y..(max_y+1) {
                 if self.contains_pixel(x as i32, y as i32) {
                     pixels.push(PrimitivePoint::new(x, y));
                 }
@@ -305,5 +315,86 @@ mod tests {
         let p3 = PrimitivePoint::new(0, 19);
         let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
         assert_eq!(tri.is_valid(), false);
+    }
+
+    #[test]
+    fn test_as_svg() {
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(0, 0);
+        let p3 = PrimitivePoint::new(0, 0);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        let expected = "<polygon fill=\"#000000\" fill-opacity=\"0.00000\" points=\"0,0 0,0 0,0\" />";
+        assert_eq!(tri.as_svg(1.0).as_str(), expected);
+
+        let p1 = PrimitivePoint::new(20, 0);
+        let p2 = PrimitivePoint::new(0, 40);
+        let p3 = PrimitivePoint::new(30, 10);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([240, 64, 15, 128])};
+        let scale = 2.0;
+        let expected = "<polygon fill=\"#F0400F\" fill-opacity=\"0.50196\" points=\"40,0 0,80 60,20\" />";
+        assert_eq!(tri.as_svg(scale).as_str(), expected);
+    }
+
+    #[test]
+    fn test_get_pixels() {
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(3, 0);
+        let p3 = PrimitivePoint::new(0, 3);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        let expected = vec![PrimitivePoint::new(0, 0),
+                            PrimitivePoint::new(0, 1),
+                            PrimitivePoint::new(0, 2),
+                            PrimitivePoint::new(0, 3),
+                            PrimitivePoint::new(1, 0),
+                            PrimitivePoint::new(1, 1),
+                            PrimitivePoint::new(1, 2),
+                            PrimitivePoint::new(2, 0),
+                            PrimitivePoint::new(2, 1),
+                            PrimitivePoint::new(3, 0)];
+        assert_eq!(tri.get_pixels(), expected);
+
+        let p1 = PrimitivePoint::new(5, 5);
+        let p2 = PrimitivePoint::new(5, 2);
+        let p3 = PrimitivePoint::new(2, 5);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        let expected = vec![PrimitivePoint::new(2, 5),
+            PrimitivePoint::new(3, 4),
+            PrimitivePoint::new(3, 5),
+            PrimitivePoint::new(4, 3),
+            PrimitivePoint::new(4, 4),
+            PrimitivePoint::new(4, 5),
+            PrimitivePoint::new(5, 2),
+            PrimitivePoint::new(5, 3),
+            PrimitivePoint::new(5, 4),
+            PrimitivePoint::new(5, 5)];
+        assert_eq!(tri.get_pixels(), expected);
+    }
+
+    #[test]
+    fn test_bounding_box() {
+        let p1 = PrimitivePoint::new(5, 5);
+        let p2 = PrimitivePoint::new(5, 2);
+        let p3 = PrimitivePoint::new(2, 5);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        let expected = [PrimitivePoint::new(2, 2),
+                                     PrimitivePoint::new(5, 5)];
+        assert_eq!(tri.bounding_box(), expected);
+    }
+
+    #[test]
+    fn test_contains_pixel() {
+        let p1 = PrimitivePoint::new(5, 5);
+        let p2 = PrimitivePoint::new(5, 2);
+        let p3 = PrimitivePoint::new(2, 5);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.contains_pixel(3, 3), false);
+        assert_eq!(tri.contains_pixel(4, 4), true);
+
+        let p1 = PrimitivePoint::new(0, 0);
+        let p2 = PrimitivePoint::new(3, 0);
+        let p3 = PrimitivePoint::new(0, 3);
+        let tri = Triangle{path: [p1, p2, p3], color: Rgba([0, 0, 0, 0])};
+        assert_eq!(tri.contains_pixel(4, 4), false);
+        assert_eq!(tri.contains_pixel(1, 1), true);
     }
 }
