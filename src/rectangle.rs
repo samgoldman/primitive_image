@@ -95,8 +95,8 @@ impl Shape for Rectangle {
 
         let mut pixels = vec![];
 
-        for x in min_x..max_x {
-            for y in min_y..max_y {
+        for x in min_x..(max_x+1) {
+            for y in min_y..(max_y+1) {
                 pixels.push(PrimitivePoint::new(x, y));
             }
         }
@@ -158,5 +158,56 @@ impl Shape for Rectangle {
 
     fn set_color_using(&mut self, image: &PrimitiveImage) {
         self.color = image.target_average_color_in_shape(&Box::new(*self));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    # [test]
+    fn test_get_pixels() {
+        let center = PrimitivePoint::new(0, 0);
+        let rect = Rectangle{center, width: 5, height: 5, angle: 0, color: Rgba([0, 0, 0, 0])};
+        let expected = vec![
+                            PrimitivePoint::new(-2, -2),
+                            PrimitivePoint::new(-2, -1),
+                            PrimitivePoint::new(-2, 0),
+                            PrimitivePoint::new(-2, 1),
+                            PrimitivePoint::new(-2, 2),
+                            PrimitivePoint::new(-1, -2),
+                            PrimitivePoint::new(-1, -1),
+                            PrimitivePoint::new(-1, 0),
+                            PrimitivePoint::new(-1, 1),
+                            PrimitivePoint::new(-1, 2),
+                            PrimitivePoint::new(0, -2),
+                            PrimitivePoint::new(0, -1),
+                            PrimitivePoint::new(0, 0),
+                            PrimitivePoint::new(0, 1),
+                            PrimitivePoint::new(0, 2),
+                            PrimitivePoint::new(1, -2),
+                            PrimitivePoint::new(1, -1),
+                            PrimitivePoint::new(1, 0),
+                            PrimitivePoint::new(1, 1),
+                            PrimitivePoint::new(1, 2),
+                            PrimitivePoint::new(2, -2),
+                            PrimitivePoint::new(2, -1),
+                            PrimitivePoint::new(2, 0),
+                            PrimitivePoint::new(2, 1),
+                            PrimitivePoint::new(2, 2)];
+        assert_eq!(rect.get_pixels(), expected);
+    }
+
+    #[test]
+    fn test_as_svg() {
+        let center = PrimitivePoint::new(0, 0);
+        let rect = Rectangle{center, width: 5, height: 5, angle: 0, color: Rgba([0, 0, 0, 128])};
+        let expected = "<rect fill=\"#000000\" fill-opacity=\"0.50196\" x=\"-2\" y=\"-2\" width=\"5\" height=\"5\" transform=\"rotate(0 0.5 0.5)\"/>";
+        assert_eq!(rect.as_svg(1.0).as_str(), expected);
+
+        let center = PrimitivePoint::new(1, 1);
+        let rect = Rectangle{center, width: 2, height: 2, angle: 45, color: Rgba([128, 15, 240, 128])};
+        let expected = "<rect fill=\"#800FF0\" fill-opacity=\"0.50196\" x=\"0\" y=\"0\" width=\"2\" height=\"2\" transform=\"rotate(45 1 1)\"/>";
+        assert_eq!(rect.as_svg(1.0).as_str(), expected);
     }
 }
