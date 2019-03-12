@@ -6,14 +6,10 @@ use std::cmp::max;
 use rand;
 use rand::Rng;
 use image::ImageBuffer;
-use imageproc::drawing::draw_filled_rect;
-use imageproc::rect::Rect;
-use imageproc::affine::rotate_with_default;
-use imageproc::affine::Interpolation::Nearest;
-use image::imageops::overlay;
-use crate::utilities::{get_rng, clamp, radians, rgb_to_hex, rotate_point};
+use crate::utilities::{get_rng, clamp, rgb_to_hex, rotate_point};
 use rand::distributions::Distribution;
 use rand::distributions::Normal;
+use image::Pixel;
 
 const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 
@@ -128,14 +124,16 @@ impl Shape for Rectangle {
     //noinspection RsTypeCheck
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
-
-        let mut rect_image: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
         let mut output = image.clone();
 
-        rect_image = draw_filled_rect(&rect_image, Rect::at(self.center.x, self.center.y).of_size(self.width, self.height), self.color);
-        rect_image = rotate_with_default(&rect_image, (self.center.x as f32, self.center.y as f32), -1.0*radians(self.angle as f64) as f32, Rgba([0, 0, 0, 0]),Nearest);
+        let pixels = self.get_pixels();
 
-        overlay(&mut output, &rect_image, 0, 0);
+        for pixel in pixels.iter() {
+            if pixel.x > 0 && pixel.y > 0 && pixel.x < width as i32 && pixel.y < height as i32 {
+                let pix = output.get_pixel_mut(pixel.x as u32, pixel.y as u32);
+                pix.blend(&self.color);
+            }
+        }
 
         output
     }
@@ -143,17 +141,10 @@ impl Shape for Rectangle {
     // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-        let (width, height) = image.dimensions();
+        let scaled_self = Rectangle{center: PrimitivePoint::new((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32),
+            width: (self.width as f64 * scale) as u32, height: (self.height as f64 * scale) as u32, color: self.color, angle: self.angle};
 
-        let mut rect_image: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
-        let mut output = image.clone();
-
-        rect_image = draw_filled_rect(&rect_image, Rect::at((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32).of_size(((self.width as f64) * scale) as u32, ((self.height as f64) * scale) as u32), self.color);
-        rect_image = rotate_with_default(&rect_image, ((self.center.x as f64 * scale) as f32, (self.center.y as f64 * scale) as f32), -1.0*radians(self.angle as f64) as f32, Rgba([0, 0, 0, 0]),Nearest);
-
-        overlay(&mut output, &rect_image, 0, 0);
-
-        output
+        scaled_self.paint_on(image)
     }
 
     fn set_color_using(&mut self, image: &PrimitiveImage) {
