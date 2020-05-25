@@ -50,13 +50,15 @@ jobs:
       env: TARGET=x86_64-apple-darwin
       os: osx
       rust: stable
-      script: cargo build --release --target $TARGET --locked
+      before_script: rustup target add $TARGETbuild --release --target $TARGET --locked
+      script: cargo
       install: true
       <<: *DEPLOY_TO_GITHUB
 
     - name: Build
       env: TARGET=x86_64-pc-windows-msvc
       os: windows
+      before_script: rustup target add $TARGET
       rust: stable
       script: cargo build --release --target $TARGET --locked
       <<: *DEPLOY_TO_GITHUB
