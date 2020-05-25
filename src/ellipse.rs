@@ -7,9 +7,8 @@ use rand;
 use rand::Rng;
 use image::ImageBuffer;
 use crate::utilities::{get_rng, clamp, rgb_to_hex, rotate_point};
-use rand::distributions::Distribution;
-use rand::distributions::Normal;
 use image::Pixel;
+use rand_distr::Normal;
 
 
 const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
@@ -64,7 +63,7 @@ impl Shape for Ellipse {
 
     fn mutate(&mut self, width: u32, height: u32, seed: u64) {
         let mut rng = get_rng(seed);
-        let normal = Normal::new(0.0, 5.0);
+        let normal = Normal::new(0.0, 5.0).unwrap();
 
 
         let mut i = 0;
@@ -74,9 +73,9 @@ impl Shape for Ellipse {
 
             match r {
                 0 => self.center.mutate(width, height, seed),
-                1 => self.a = clamp(self.a as i32 + (normal.sample(&mut rng) as i32), 1, max(width, height) as i32),
-                2 => self.b = clamp(self.b as i32 + (normal.sample(&mut rng) as i32), 1, max(width, height) as i32),
-                3 => self.angle = clamp(self.angle as i32 + (normal.sample(&mut rng) as i32), 0, 359) as u32,
+                1 => self.a = clamp(self.a as i32 + (rng.sample(normal) as i32), 1, max(width, height) as i32),
+                2 => self.b = clamp(self.b as i32 + (rng.sample(normal) as i32), 1, max(width, height) as i32),
+                3 => self.angle = clamp(self.angle as i32 + (rng.sample(normal) as i32), 0, 359) as u32,
                 _ => {}
             }
 
@@ -116,13 +115,12 @@ impl Shape for Ellipse {
 
         format!("<ellipse fill=\"{}\" fill-opacity=\"{:.5}\" cx=\"{}\" cy=\"{}\" rx=\"{}\" ry=\"{}\" transform=\"rotate({} {} {})\"/>",
                 rgb_to_hex(self.color),
-                self.color.data[3] as f64 / 255.0,
+                self.color.0[3] as f64 / 255.0,
                 new_center.x, new_center.y,
                 self.a as f64 * scale, self.b as f64 * scale,
                 -1*self.angle as i32, new_center.x, new_center.y)
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
@@ -140,7 +138,6 @@ impl Shape for Ellipse {
         output
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let scaled_self = Ellipse{center: PrimitivePoint::new((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32),

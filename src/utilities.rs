@@ -45,7 +45,8 @@ fn get_time_seed() -> u64 {
 }
 
 pub fn rgb_to_hex(color: Rgba<u8>) -> String {
-    format!("#{:02X}{:02X}{:02X}", color.data[0], color.data[1], color.data[2])
+    let data = color.0;
+    format!("#{:02X}{:02X}{:02X}", data[0], data[1], data[2])
 }
 
 pub fn rotate_point(point: &mut PrimitivePoint, center: PrimitivePoint, angle: u32) {

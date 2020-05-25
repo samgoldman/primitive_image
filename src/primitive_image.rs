@@ -301,7 +301,7 @@ mod tests {
 
         // Test with two pixels, each a different color
         let mut test_im_3 = ImageBuffer::from_pixel(1, 2, Rgba([0, 0, 0, 128]));
-        test_im_3.get_pixel_mut(0, 1).data = [10, 10, 10, 128];
+        test_im_3.get_pixel_mut(0, 1).0 = [10, 10, 10, 128];
         assert_eq!(average_color(&test_im_3), Rgba([5, 5, 5, 128]));
     }
 

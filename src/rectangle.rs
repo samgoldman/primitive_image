@@ -7,9 +7,8 @@ use rand;
 use rand::Rng;
 use image::ImageBuffer;
 use crate::utilities::{get_rng, clamp, rgb_to_hex, rotate_point};
-use rand::distributions::Distribution;
-use rand::distributions::Normal;
 use image::Pixel;
+use rand_distr::Normal;
 
 const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 
@@ -58,7 +57,7 @@ impl Shape for Rectangle {
 
     fn mutate(&mut self, width: u32, height: u32, seed: u64) {
         let mut rng = get_rng(seed);
-        let normal = Normal::new(0.0, 16.0);
+        let normal = Normal::new(0.0, 16.0).unwrap();
 
 
         let mut i = 0;
@@ -68,8 +67,8 @@ impl Shape for Rectangle {
 
             match r {
                 0 => self.center.mutate(width, height, seed),
-                1 => self.width = clamp(self.width as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32) as u32,
-                2 => self.height = clamp(self.height as i32 + (normal.sample(&mut rng) as i32), 5, max(width, height) as i32) as u32,
+                1 => self.width = clamp(self.width as i32 + (rng.sample(normal) as i32), 5, max(width, height) as i32) as u32,
+                2 => self.height = clamp(self.height as i32 + (rng.sample(normal) as i32), 5, max(width, height) as i32) as u32,
                 3 => self.angle = rng.gen_range(0, 180),
                 _ => {}
             }
@@ -114,13 +113,12 @@ impl Shape for Rectangle {
 
         format!("<rect fill=\"{}\" fill-opacity=\"{:.5}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" transform=\"rotate({} {} {})\"/>",
                 rgb_to_hex(self.color),
-                self.color.data[3] as f64 / 255.0,
+                self.color.0[3] as f64 / 255.0,
                 p1.x, p1.y,
                 self.width as f64 * scale, self.height as f64 * scale,
                 self.angle, p1.x as f64 + self.width as f64 * scale / 2.0, p1.y as f64 + self.height as f64 * scale / 2.0)
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
@@ -138,7 +136,6 @@ impl Shape for Rectangle {
         output
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let scaled_self = Rectangle{center: PrimitivePoint::new((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32),

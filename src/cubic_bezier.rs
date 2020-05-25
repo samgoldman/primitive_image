@@ -125,7 +125,7 @@ impl Shape for CubicBezier {
     fn as_svg(&self, scale: f64) -> String {
         format!("<path stroke=\"{}\" stroke-opacity=\"{}\" fill=\"none\" d=\"M{} {} C{} {}, {} {}, {} {}\" stroke-width=\"{}\" />",
                 rgb_to_hex(self.color),
-                self.color.data[3] as f64 / 255.0,
+                self.color.0[3] as f64 / 255.0,
                 (self.start.x as f64 * scale) as i32, (self.start.y as f64 * scale) as i32,
                 (self.control1.x as f64 * scale) as i32, (self.control1.y as f64 * scale) as i32,
                 (self.control2.x as f64 * scale) as i32, (self.control2.y as f64 * scale) as i32,
@@ -133,7 +133,6 @@ impl Shape for CubicBezier {
                 scale/2.0)
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
@@ -148,7 +147,6 @@ impl Shape for CubicBezier {
         output
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();

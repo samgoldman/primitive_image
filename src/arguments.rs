@@ -38,7 +38,7 @@ pub struct Opt {
     /// Override the initial background color
     pub background_color: Option<String>,
 
-    #[structopt(long, default_value = "TRIANGLE", raw(possible_values = "&[\"TRIANGLE\", \"CUBIC\", \"QUADRATIC\", \"RECTANGLE\", \"ELLIPSE\", \"MIXED\"]"))]
+    #[structopt(long, default_value = "TRIANGLE", possible_values = &["TRIANGLE", "CUBIC", "QUADRATIC", "RECTANGLE", "ELLIPSE", "MIXED"])]
     ///
     pub shape: String
 

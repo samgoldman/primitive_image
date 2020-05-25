@@ -13,13 +13,14 @@ name = "primitive_image"
 path = "src/main.rs"
 
 [dependencies]
-imageproc = "0.18.0"
-image = "0.21.0"
-svg = "0.5.12"
-rand = "0.6"
-structopt = "0.2.14"
-log = "0.4.6"
-simplelog = "0.5.3"
+imageproc = "0.20.0"
+image = "0.23.4"
+svg = "0.8.0"
+rand = "0.7.3"
+rand_distr = "0.2.2"
+structopt = "0.3.14"
+log = "0.4.8"
+simplelog = "0.8.0"
 
 [profile.dev]
 opt-level = 3

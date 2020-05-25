@@ -13,7 +13,7 @@ use crate::utilities::get_rng;
 use crate::utilities::rgb_to_hex;
 
 const MINIMUM_DEGREES: f64 = 15.0;
-const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
+const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000_000;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Triangle {
@@ -158,13 +158,12 @@ impl Shape for Triangle {
     fn as_svg(&self, scale: f64) -> String {
         format!("<polygon fill=\"{}\" fill-opacity=\"{:.5}\" points=\"{},{} {},{} {},{}\" />",
                 rgb_to_hex(self.color),
-                self.color.data[3] as f64 / 255.0,
+                self.color.0[3] as f64 / 255.0,
                 (self.path[0].x as f64 * scale) as i32, (self.path[0].y as f64 * scale) as i32,
                 (self.path[1].x as f64 * scale) as i32, (self.path[1].y as f64 * scale) as i32,
                 (self.path[2].x as f64 * scale) as i32, (self.path[2].y as f64 * scale) as i32)
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
@@ -179,7 +178,6 @@ impl Shape for Triangle {
         output
     }
 
-    // Suppress intellij inspection for E0308 (false positive)
     //noinspection RsTypeCheck
     fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
