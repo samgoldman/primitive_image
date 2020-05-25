@@ -11,7 +11,6 @@ use std::cmp::max;
 use std::option::Option;
 use std::path::PathBuf;
 use std::fs::OpenOptions;
-use std::error::Error;
 use std::io::Write;
 use imageproc::stats::{root_mean_squared_error};
 use crate::shape::ShapeType;
@@ -24,7 +23,7 @@ pub struct PrimitiveImage {
     target: ImageBuffer<Rgba<u8>, Vec<u8>>,
     approximation: ImageBuffer<Rgba<u8>, Vec<u8>>,
     scale: f64,
-    shapes: Vec<Box<Shape>>,
+    shapes: Vec<Box<dyn Shape>>,
     background: Rgba<u8>
 }
 impl PrimitiveImage {
@@ -122,7 +121,7 @@ impl PrimitiveImage {
 
         if file.is_err()  {
             let err = file.unwrap_err();
-            panic!("{}", err.description());
+            panic!("{}", err.to_string());
         }
 
         let mut svg = file.unwrap();

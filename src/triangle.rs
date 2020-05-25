@@ -96,7 +96,7 @@ impl RandomShape for Triangle {
     /// `border_extension` is the maximum distance outside of the border a triangle is allowed to go
     ///     It must be >= 1
     ///
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<Shape> {
+    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<dyn Shape> {
         let p0 = PrimitivePoint::random_point(width, height, seed);
         let p1 = p0.random_point_in_radius(border_extension, seed);
         let p2 = p0.random_point_in_radius(border_extension, seed);

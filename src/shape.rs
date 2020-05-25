@@ -23,24 +23,24 @@ pub trait Shape: ShapeClone + Debug {
 }
 
 pub trait ShapeClone {
-    fn clone_box(&self) -> Box<Shape>;
+    fn clone_box(&self) -> Box<dyn Shape>;
 }
 
 impl<T> ShapeClone for T
 where
     T: 'static + Shape + Clone,
 {
-    fn clone_box(&self) -> Box<Shape> {
+    fn clone_box(&self) -> Box<dyn Shape> {
         Box::new(self.clone())
     }
 }
 
-impl Clone for Box<Shape> {
-    fn clone(&self) -> Box<Shape> {
+impl Clone for Box<dyn Shape> {
+    fn clone(&self) -> Box<dyn Shape> {
         self.clone_box()
     }
 }
 
 pub trait RandomShape {
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<Shape>;
+    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<dyn Shape>;
 }

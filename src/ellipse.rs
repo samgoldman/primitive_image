@@ -45,7 +45,7 @@ impl RandomShape for Ellipse {
     /// `border_extension` is the maximum distance outside of the border a triangle is allowed to go
     ///     It must be >= 1
     ///
-    fn random(width: u32, height: u32, _border_extension: i32, seed: u64) -> Box<Shape> {
+    fn random(width: u32, height: u32, _border_extension: i32, seed: u64) -> Box<dyn Shape> {
         let mut rng = get_rng(seed);
 
         let center = PrimitivePoint::random_point(width, height, seed);

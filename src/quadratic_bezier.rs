@@ -43,7 +43,7 @@ impl QuadraticBezier {
 }
 
 impl RandomShape for QuadraticBezier {
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<Shape> {
+    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<dyn Shape> {
         let start = PrimitivePoint::random_point(width, height, seed);
         let control = start.random_point_in_radius(border_extension, seed);
         let end = start.random_point_in_radius(border_extension, seed);
@@ -109,7 +109,7 @@ impl Shape for QuadraticBezier {
 
         let mut pixels = vec![];
 
-        'outer:for i in 0..num_segments {
+        for i in 0..num_segments {
             let t2 = (i as f32 + 1.0) * t_interval;
 
             let line_iterator = BresenhamLineIter::new(cubic_bezier_curve(t1), cubic_bezier_curve(t2));
