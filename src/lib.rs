@@ -12,3 +12,4 @@ pub mod quadratic_bezier;
 pub mod rectangle;
 pub mod ellipse;
 pub mod primitive_image;
+pub mod runner;
