@@ -3,7 +3,6 @@ use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use image::Rgba;
 use std::cmp::max;
-use rand;
 use rand::Rng;
 use image::ImageBuffer;
 use crate::utilities::{get_rng, clamp, rgb_to_hex, rotate_point};
@@ -96,8 +95,8 @@ impl Shape for Rectangle {
             }
         }
 
-        for i in 0..pixels.len() {
-            rotate_point(&mut pixels[i], self.center, self.angle);
+        for pixel in pixels.iter_mut() {
+            rotate_point(pixel, self.center, self.angle);
         }
 
         pixels
@@ -119,7 +118,6 @@ impl Shape for Rectangle {
                 self.angle, p1.x as f64 + self.width as f64 * scale / 2.0, p1.y as f64 + self.height as f64 * scale / 2.0)
     }
 
-    //noinspection RsTypeCheck
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
         let mut output = image.clone();

@@ -3,7 +3,6 @@ use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use image::Rgba;
 use imageproc::drawing::BresenhamLineIter;
-use rand;
 use rand::Rng;
 use image::ImageBuffer;
 use imageproc::drawing::draw_cubic_bezier_curve;

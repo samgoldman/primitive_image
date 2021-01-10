@@ -1,7 +1,6 @@
 use std::f64;
 use std::cmp::{min, max};
 use std::time::{SystemTime, UNIX_EPOCH};
-use rand;
 use rand::prelude::*;
 use image::Rgba;
 use crate::point::PrimitivePoint;
@@ -40,8 +39,9 @@ pub fn get_rng(seed: u64) -> StdRng {
 fn get_time_seed() -> u64 {
     let start = SystemTime::now();
     let since_the_epoch = start.duration_since(UNIX_EPOCH).expect("Time went backwards");
-    let seed = since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_nanos() as u64;
-    seed
+
+    // Seed
+    since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_nanos() as u64
 }
 
 pub fn rgb_to_hex(color: Rgba<u8>) -> String {

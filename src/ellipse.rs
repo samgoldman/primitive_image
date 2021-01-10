@@ -3,7 +3,6 @@ use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use image::Rgba;
 use std::cmp::max;
-use rand;
 use rand::Rng;
 use image::ImageBuffer;
 use crate::utilities::{get_rng, clamp, rgb_to_hex, rotate_point};
@@ -104,8 +103,8 @@ impl Shape for Ellipse {
             }
         }
 
-        for i in 0..pixels.len() {
-            rotate_point(&mut pixels[i], self.center, self.angle);
+        for pixel in pixels.iter_mut() {
+            rotate_point(pixel, self.center, self.angle);
         }
         pixels
     }
@@ -118,7 +117,7 @@ impl Shape for Ellipse {
                 self.color.0[3] as f64 / 255.0,
                 new_center.x, new_center.y,
                 self.a as f64 * scale, self.b as f64 * scale,
-                -1*self.angle as i32, new_center.x, new_center.y)
+                -(self.angle as i32), new_center.x, new_center.y)
     }
 
     //noinspection RsTypeCheck

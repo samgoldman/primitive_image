@@ -29,16 +29,12 @@ pub struct PrimitiveImage {
 impl PrimitiveImage {
     pub fn from_path(path: PathBuf, scale_to: u32, background: Option<Rgba<u8>>) -> PrimitiveImage {
         let original = open(&path)
-            .expect(&format!("Could not load image at {:?}", path))
+            .unwrap_or_else(|_| panic!("Could not load image at {:?}", path))
             .to_rgba();
 
         let (original_width, original_height) = original.dimensions();
 
-        let background = if background.is_some() {
-            background.unwrap()
-        } else {
-            average_color(&original)
-        };
+        let background = background.unwrap_or_else(|| average_color(&original));
 
         // Set the scale so that when the image is resized, the largest
         // dimension is now scale_to pixels in length
@@ -97,16 +93,16 @@ impl PrimitiveImage {
                  original_width, original_height,
                  rgb_to_hex(self.background));
 
-        result += &format!("<g>");
+        result += "<g>";
 
 
         // Add the polygons!
         for polygon in self.shapes.iter() {
-            result += &format!("{}", polygon.as_svg(inverted_scale));
+            result += &polygon.as_svg(inverted_scale);
         }
 
         //result += &format!("</g></g></svg>");
-        result += &format!("</g></svg>");
+        result += "</g></svg>";
 
         result
     }
@@ -119,14 +115,13 @@ impl PrimitiveImage {
             .create(true)
             .open(path);
 
-        if file.is_err()  {
+        if let Ok(mut svg) = file {
+            write!(&svg, "{}", self.as_svg()).unwrap();
+            svg.flush().unwrap();
+        } else {
             let err = file.unwrap_err();
             panic!("{}", err.to_string());
         }
-
-        let mut svg = file.unwrap();
-        write!(&svg, "{}", self.as_svg()).unwrap();
-        svg.flush().unwrap();
     }
 
     /// Save the current approximation in an image format

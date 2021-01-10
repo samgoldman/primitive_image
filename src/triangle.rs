@@ -4,7 +4,6 @@ use crate::primitive_image::PrimitiveImage;
 use image::Rgba;
 use imageproc::drawing::Point;
 use std::cmp::{min, max};
-use rand;
 use rand::Rng;
 use image::ImageBuffer;
 use imageproc::drawing::draw_convex_polygon;
@@ -185,9 +184,9 @@ impl Shape for Triangle {
         let mut tri_image: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
         let mut output = image.clone();
 
-        let mut p0 = self.path[0].clone();
-        let mut p1 = self.path[1].clone();
-        let mut p2 = self.path[2].clone();
+        let mut p0 = self.path[0];
+        let mut p1 = self.path[1];
+        let mut p2 = self.path[2];
 
         p0.x = (p0.x as f64 * scale) as i32;
         p0.y = (p0.y as f64 * scale) as i32;
@@ -201,7 +200,7 @@ impl Shape for Triangle {
         let dp2 = p2.to_drawing_point();
 
 
-        tri_image = draw_convex_polygon(&tri_image, &vec![dp0, dp1, dp2], self.color);
+        tri_image = draw_convex_polygon(&tri_image, &[dp0, dp1, dp2], self.color);
 
         overlay(&mut output, &tri_image, 0, 0);
 

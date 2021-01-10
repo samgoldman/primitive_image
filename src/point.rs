@@ -26,8 +26,8 @@ impl PrimitivePoint {
 
         let normal = Normal::new(0.0, 16.0).unwrap();
 
-        self.x = clamp(self.x + (rng.sample(normal) as i32), -1 * border_extension, width as i32 + border_extension);
-        self.y = clamp(self.y + (rng.sample(normal) as i32), -1 * border_extension, height as i32 + border_extension);
+        self.x = clamp(self.x + (rng.sample(normal) as i32), -border_extension, width as i32 + border_extension);
+        self.y = clamp(self.y + (rng.sample(normal) as i32), -border_extension, height as i32 + border_extension);
     }
 
     ///
