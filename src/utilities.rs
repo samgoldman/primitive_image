@@ -1,9 +1,9 @@
-use std::f64;
-use std::cmp::{min, max};
-use std::time::{SystemTime, UNIX_EPOCH};
-use rand::prelude::*;
-use image::Rgba;
 use crate::point::PrimitivePoint;
+use image::Rgba;
+use rand::prelude::*;
+use std::cmp::{max, min};
+use std::f64;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Return the square root of x
 pub fn sqrt(x: f64) -> f64 {
@@ -38,7 +38,9 @@ pub fn get_rng(seed: u64) -> StdRng {
 
 fn get_time_seed() -> u64 {
     let start = SystemTime::now();
-    let since_the_epoch = start.duration_since(UNIX_EPOCH).expect("Time went backwards");
+    let since_the_epoch = start
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
 
     // Seed
     since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_nanos() as u64
@@ -62,7 +64,6 @@ pub fn rotate_point(point: &mut PrimitivePoint, center: PrimitivePoint, angle: u
     point.x = new_x as i32 + center.x;
     point.y = new_y as i32 + center.y;
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -108,7 +109,6 @@ mod tests {
         let expected = PrimitivePoint::new(10, 20);
         rotate_point(&mut p, center, angle);
         assert_eq!(p, expected);
-
 
         let mut p = PrimitivePoint::new(20, 10);
         let center = PrimitivePoint::new(10, 10);

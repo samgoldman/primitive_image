@@ -1,20 +1,20 @@
-use crate::triangle::Triangle;
 use crate::cubic_bezier::CubicBezier;
+use crate::ellipse::Ellipse;
 use crate::quadratic_bezier::QuadraticBezier;
 use crate::rectangle::Rectangle;
-use crate::ellipse::Ellipse;
-use crate::shape::{Shape, RandomShape};
+use crate::shape::{RandomShape, Shape};
+use crate::triangle::Triangle;
 
-use image::{open, Rgba, ImageBuffer};
-use image::imageops::{resize, Nearest};
-use std::cmp::max;
-use std::option::Option;
-use std::path::PathBuf;
-use std::fs::OpenOptions;
-use std::io::Write;
-use imageproc::stats::{root_mean_squared_error};
 use crate::shape::ShapeType;
 use crate::utilities::rgb_to_hex;
+use image::imageops::{resize, Nearest};
+use image::{open, ImageBuffer, Rgba};
+use imageproc::stats::root_mean_squared_error;
+use std::cmp::max;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::option::Option;
+use std::path::PathBuf;
 
 const BORDER_EXTENSION: i32 = 6;
 
@@ -24,7 +24,7 @@ pub struct PrimitiveImage {
     approximation: ImageBuffer<Rgba<u8>, Vec<u8>>,
     scale: f64,
     shapes: Vec<Box<dyn Shape>>,
-    background: Rgba<u8>
+    background: Rgba<u8>,
 }
 impl PrimitiveImage {
     pub fn from_path(path: PathBuf, scale_to: u32, background: Option<Rgba<u8>>) -> PrimitiveImage {
@@ -40,7 +40,7 @@ impl PrimitiveImage {
         // dimension is now scale_to pixels in length
         // If scale is <= 0, use the original image size
         let scale = if scale_to > 0 {
-            scale_to as f64 / max(original_width , original_height) as f64
+            scale_to as f64 / max(original_width, original_height) as f64
         } else {
             1.0
         };
@@ -52,7 +52,13 @@ impl PrimitiveImage {
 
         let approximation = ImageBuffer::from_pixel(new_width, new_height, background);
 
-        PrimitiveImage {target: resized, approximation, scale, background, shapes: vec![]}
+        PrimitiveImage {
+            target: resized,
+            approximation,
+            scale,
+            background,
+            shapes: vec![],
+        }
     }
 
     pub fn target_average_color_in_shape(&self, shape: &impl Shape) -> Rgba<u8> {
@@ -64,13 +70,13 @@ impl PrimitiveImage {
 
         match extension {
             None => panic!("Can't save to file {:?} (no extension found!)", path),
-            Some(os_str) => {
-                match os_str.to_str() {
-                    Some("svg") => {self.save_to_svg(path)},
-                    Some("png") | Some("jpg") | Some("bmp") | Some("ico") | Some("gif") => self.save_to_img(path),
-                    _ => error!("Invalid save file type: {:?}", extension)
+            Some(os_str) => match os_str.to_str() {
+                Some("svg") => self.save_to_svg(path),
+                Some("png") | Some("jpg") | Some("bmp") | Some("ico") | Some("gif") => {
+                    self.save_to_img(path)
                 }
-            }
+                _ => error!("Invalid save file type: {:?}", extension),
+            },
         }
     }
 
@@ -82,19 +88,23 @@ impl PrimitiveImage {
         let original_width = (scaled_width as f64 * inverted_scale) as u32;
         let original_height = (scaled_height as f64 * inverted_scale) as u32;
 
-        result += &format!("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"{}\" height=\"{}\">",
-                 original_width, original_height);
+        result += &format!(
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"{}\" height=\"{}\">",
+            original_width, original_height
+        );
 
         // Use an SVG transform to resize all of the polygons (it's easier to have someone else do the math)
         //result += &format!("<g transform=\"scale({})\">", inverted_scale);
 
         // Add the background
-        result += &format!("<rect x=\"0\" y=\"0\" width=\"{}\" height=\"{}\" fill=\"{}\" />",
-                 original_width, original_height,
-                 rgb_to_hex(self.background));
+        result += &format!(
+            "<rect x=\"0\" y=\"0\" width=\"{}\" height=\"{}\" fill=\"{}\" />",
+            original_width,
+            original_height,
+            rgb_to_hex(self.background)
+        );
 
         result += "<g>";
-
 
         // Add the polygons!
         for polygon in self.shapes.iter() {
@@ -155,11 +165,21 @@ impl PrimitiveImage {
     pub fn add_new_shape(&mut self, max_age: u32, shape_type: &ShapeType, seed: u64) -> bool {
         // Initialize a random shape and give it a color
         let mut shape = match shape_type {
-                ShapeType::Triangle => Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                ShapeType::CubicBezier => CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                ShapeType::QuadraticBezier => QuadraticBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                ShapeType::Rectangle => Rectangle::random(self.width(), self.height(), BORDER_EXTENSION, seed),
-                ShapeType::Ellipse => Ellipse::random(self.width(), self.height(), BORDER_EXTENSION, seed)
+            ShapeType::Triangle => {
+                Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed)
+            }
+            ShapeType::CubicBezier => {
+                CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed)
+            }
+            ShapeType::QuadraticBezier => {
+                QuadraticBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed)
+            }
+            ShapeType::Rectangle => {
+                Rectangle::random(self.width(), self.height(), BORDER_EXTENSION, seed)
+            }
+            ShapeType::Ellipse => {
+                Ellipse::random(self.width(), self.height(), BORDER_EXTENSION, seed)
+            }
         };
         shape.set_color_using(self);
 
@@ -168,7 +188,6 @@ impl PrimitiveImage {
         let mut best_image = self.clone();
         best_image.approximation = best_shape.paint_on(&best_image.approximation);
         let mut best_score = best_image.score();
-
 
         let mut age = 0;
         // Loop until max_age mutations fail to yield and improvement
@@ -278,7 +297,6 @@ fn average_color(image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> Rgba<u8> {
     Rgba(average_pixels)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -304,10 +322,16 @@ mod tests {
     fn test_score() {
         let approximation = ImageBuffer::from_pixel(2, 2, Rgba([0, 0, 0, 128]));
         let target = ImageBuffer::from_pixel(2, 2, Rgba([10, 10, 10, 128]));
-        let primitive = PrimitiveImage{target, approximation, background: Rgba([0, 0, 0, 0]), scale: 1.0, shapes: vec![]};
+        let primitive = PrimitiveImage {
+            target,
+            approximation,
+            background: Rgba([0, 0, 0, 0]),
+            scale: 1.0,
+            shapes: vec![],
+        };
 
         // sqrt((Error(10.0)*Error(10.0)*NumChannelsWithError(3.0)*NumPixels(4.0))/(NumChannels(4.0)*NumPixels(4.0))
-        let expected_score = sqrt((10.0*10.0*3.0*4.0)/(4.0*4.0));
+        let expected_score = sqrt((10.0 * 10.0 * 3.0 * 4.0) / (4.0 * 4.0));
 
         assert_eq!(primitive.score(), expected_score);
     }

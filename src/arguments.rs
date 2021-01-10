@@ -4,7 +4,12 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "Primitive", about = "Generate SVG approximations of images!", author = "Sam Goldman", rename_all = "kebab-case")]
+#[structopt(
+    name = "Primitive",
+    about = "Generate SVG approximations of images!",
+    author = "Sam Goldman",
+    rename_all = "kebab-case"
+)]
 pub struct Opt {
     #[structopt(short = "i", long = "input", parse(from_os_str))]
     /// Path to the image to be approximated (.jpg, .png, .tif, .gif, or .bmp)
@@ -40,6 +45,5 @@ pub struct Opt {
 
     #[structopt(long, default_value = "TRIANGLE", possible_values = &["TRIANGLE", "CUBIC", "QUADRATIC", "RECTANGLE", "ELLIPSE", "MIXED"])]
     ///
-    pub shape: String
-
+    pub shape: String,
 }

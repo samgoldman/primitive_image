@@ -1,14 +1,13 @@
-use crate::shape::{Shape, RandomShape};
 use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
-use image::Rgba;
-use std::cmp::max;
-use rand::Rng;
+use crate::shape::{RandomShape, Shape};
+use crate::utilities::{clamp, get_rng, rgb_to_hex, rotate_point};
 use image::ImageBuffer;
-use crate::utilities::{get_rng, clamp, rgb_to_hex, rotate_point};
 use image::Pixel;
+use image::Rgba;
+use rand::Rng;
 use rand_distr::Normal;
-
+use std::cmp::max;
 
 const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 
@@ -18,11 +17,10 @@ pub struct Ellipse {
     center: PrimitivePoint,
     a: i32,
     b: i32,
-    angle: u32 // In degrees
+    angle: u32, // In degrees
 }
 
 impl Ellipse {
-
     ///
     ///
     ///
@@ -31,13 +29,13 @@ impl Ellipse {
     }
 
     fn un_rotated_contains_pixel(&self, x: i32, y: i32) -> bool {
-        ((x - self.center.x)*(x - self.center.x)) as f64 /(self.a*self.a) as f64  +
-            ((y - self.center.y)*(y - self.center.y))as f64 /(self.b*self.b) as f64 <= 1.0
+        ((x - self.center.x) * (x - self.center.x)) as f64 / (self.a * self.a) as f64
+            + ((y - self.center.y) * (y - self.center.y)) as f64 / (self.b * self.b) as f64
+            <= 1.0
     }
 }
 
 impl RandomShape for Ellipse {
-
     ///
     /// Generate a random Triangle within the bounds given
     /// `border_extension` is the maximum distance outside of the border a triangle is allowed to go
@@ -51,7 +49,13 @@ impl RandomShape for Ellipse {
         let b = rng.gen_range(1, max(width as i32, height as i32) / 10);
         let angle = rng.gen_range(0, 360);
 
-        let mut ellipse = Ellipse{center, a, b, angle, color: Rgba([0, 0, 0, 128])};
+        let mut ellipse = Ellipse {
+            center,
+            a,
+            b,
+            angle,
+            color: Rgba([0, 0, 0, 128]),
+        };
         ellipse.mutate(width, height, seed);
 
         Box::new(ellipse)
@@ -59,11 +63,9 @@ impl RandomShape for Ellipse {
 }
 
 impl Shape for Ellipse {
-
     fn mutate(&mut self, width: u32, height: u32, seed: u64) {
         let mut rng = get_rng(seed);
         let normal = Normal::new(0.0, 5.0).unwrap();
-
 
         let mut i = 0;
         loop {
@@ -72,9 +74,24 @@ impl Shape for Ellipse {
 
             match r {
                 0 => self.center.mutate(width, height, seed),
-                1 => self.a = clamp(self.a as i32 + (rng.sample(normal) as i32), 1, max(width, height) as i32),
-                2 => self.b = clamp(self.b as i32 + (rng.sample(normal) as i32), 1, max(width, height) as i32),
-                3 => self.angle = clamp(self.angle as i32 + (rng.sample(normal) as i32), 0, 359) as u32,
+                1 => {
+                    self.a = clamp(
+                        self.a as i32 + (rng.sample(normal) as i32),
+                        1,
+                        max(width, height) as i32,
+                    )
+                }
+                2 => {
+                    self.b = clamp(
+                        self.b as i32 + (rng.sample(normal) as i32),
+                        1,
+                        max(width, height) as i32,
+                    )
+                }
+                3 => {
+                    self.angle =
+                        clamp(self.angle as i32 + (rng.sample(normal) as i32), 0, 359) as u32
+                }
                 _ => {}
             }
 
@@ -110,7 +127,10 @@ impl Shape for Ellipse {
     }
 
     fn as_svg(&self, scale: f64) -> String {
-        let new_center = PrimitivePoint::new((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32);
+        let new_center = PrimitivePoint::new(
+            (self.center.x as f64 * scale) as i32,
+            (self.center.y as f64 * scale) as i32,
+        );
 
         format!("<ellipse fill=\"{}\" fill-opacity=\"{:.5}\" cx=\"{}\" cy=\"{}\" rx=\"{}\" ry=\"{}\" transform=\"rotate({} {} {})\"/>",
                 rgb_to_hex(self.color),
@@ -138,9 +158,21 @@ impl Shape for Ellipse {
     }
 
     //noinspection RsTypeCheck
-    fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-        let scaled_self = Ellipse{center: PrimitivePoint::new((self.center.x as f64 * scale) as i32, (self.center.y as f64 * scale) as i32),
-            a: (self.a as f64 * scale) as i32, b: (self.b as f64 * scale) as i32, color: self.color, angle: self.angle};
+    fn scaled_paint_on(
+        &self,
+        image: &ImageBuffer<Rgba<u8>, Vec<u8>>,
+        scale: f64,
+    ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+        let scaled_self = Ellipse {
+            center: PrimitivePoint::new(
+                (self.center.x as f64 * scale) as i32,
+                (self.center.y as f64 * scale) as i32,
+            ),
+            a: (self.a as f64 * scale) as i32,
+            b: (self.b as f64 * scale) as i32,
+            color: self.color,
+            angle: self.angle,
+        };
 
         scaled_self.paint_on(image)
     }
@@ -154,13 +186,19 @@ impl Shape for Ellipse {
 mod tests {
     use super::*;
 
-    # [test]
+    #[test]
     fn test_get_un_rotated_contains_pixel() {
         let center = PrimitivePoint::new(2, 2);
         let a = 2;
         let b = 2;
         let angle = 0;
-        let ellipse = Ellipse{center, a, b, angle, color: Rgba([0, 0, 0, 0])};
+        let ellipse = Ellipse {
+            center,
+            a,
+            b,
+            angle,
+            color: Rgba([0, 0, 0, 0]),
+        };
         assert_eq!(ellipse.un_rotated_contains_pixel(2, 2), true);
         assert_eq!(ellipse.un_rotated_contains_pixel(0, 0), false);
 
@@ -168,7 +206,13 @@ mod tests {
         let a = 10;
         let b = 10;
         let angle = 0;
-        let ellipse = Ellipse{center, a, b, angle, color: Rgba([0, 0, 0, 0])};
+        let ellipse = Ellipse {
+            center,
+            a,
+            b,
+            angle,
+            color: Rgba([0, 0, 0, 0]),
+        };
         assert_eq!(ellipse.un_rotated_contains_pixel(2, -8), true);
         assert_eq!(ellipse.un_rotated_contains_pixel(12, -8), false);
         assert_eq!(ellipse.un_rotated_contains_pixel(11, -7), false);

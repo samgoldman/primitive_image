@@ -10,7 +10,7 @@ pub enum ShapeType {
     CubicBezier,
     QuadraticBezier,
     Ellipse,
-    Rectangle
+    Rectangle,
 }
 
 pub trait Shape: ShapeClone + Debug {
@@ -18,7 +18,11 @@ pub trait Shape: ShapeClone + Debug {
     fn get_pixels(&self) -> Vec<PrimitivePoint>;
     fn as_svg(&self, scale: f64) -> String;
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>>;
-    fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>>;
+    fn scaled_paint_on(
+        &self,
+        image: &ImageBuffer<Rgba<u8>, Vec<u8>>,
+        scale: f64,
+    ) -> ImageBuffer<Rgba<u8>, Vec<u8>>;
     fn set_color_using(&mut self, image: &PrimitiveImage);
 }
 

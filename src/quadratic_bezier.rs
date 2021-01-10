@@ -1,14 +1,14 @@
-use crate::shape::{Shape, RandomShape};
 use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
-use image::Rgba;
-use imageproc::drawing::BresenhamLineIter;
-use rand::Rng;
-use image::ImageBuffer;
-use imageproc::drawing::draw_cubic_bezier_curve;
-use image::imageops::overlay;
+use crate::shape::{RandomShape, Shape};
 use crate::utilities::get_rng;
 use crate::utilities::rgb_to_hex;
+use image::imageops::overlay;
+use image::ImageBuffer;
+use image::Rgba;
+use imageproc::drawing::draw_cubic_bezier_curve;
+use imageproc::drawing::BresenhamLineIter;
+use rand::Rng;
 
 const MAXIMUM_MUTATION_ATTEMPTS: u32 = 100_000;
 
@@ -17,12 +17,21 @@ pub struct QuadraticBezier {
     pub color: image::Rgba<u8>,
     pub start: PrimitivePoint,
     pub control: PrimitivePoint,
-    pub end: PrimitivePoint
+    pub end: PrimitivePoint,
 }
 
 impl QuadraticBezier {
-    fn new(start: PrimitivePoint, end: PrimitivePoint, control: PrimitivePoint) -> Box<QuadraticBezier> {
-        Box::new(QuadraticBezier {color: Rgba([0, 0, 0, 128]), start, end, control})
+    fn new(
+        start: PrimitivePoint,
+        end: PrimitivePoint,
+        control: PrimitivePoint,
+    ) -> Box<QuadraticBezier> {
+        Box::new(QuadraticBezier {
+            color: Rgba([0, 0, 0, 128]),
+            start,
+            end,
+            control,
+        })
     }
 
     /// Currently no validation for CubicBezier is required, so this always returns true
@@ -33,9 +42,9 @@ impl QuadraticBezier {
         let dy23 = self.control.y - self.end.y;
         let dx13 = self.start.x - self.end.x;
         let dy13 = self.start.y - self.end.y;
-        let d12 = dx12*dx12 + dy12*dy12;
-        let d23 = dx23*dx23 + dy23*dy23;
-        let d13 = dx13*dx13 + dy13*dy13;
+        let d12 = dx12 * dx12 + dy12 * dy12;
+        let d23 = dx23 * dx23 + dy23 * dy23;
+        let d13 = dx13 * dx13 + dy13 * dy13;
 
         d13 > d12 && d13 > d23
     }
@@ -86,8 +95,12 @@ impl Shape for QuadraticBezier {
             let t2 = t * t;
             let mt = 1.0 - t;
             let mt2 = mt * mt;
-            let x = (self.start.x as f32 * mt2) + (2.0 * self.control.x as f32 * mt * t) + (self.end.x as f32 * t2);
-            let y = (self.start.y as f32 * mt2) + (2.0 * self.control.y as f32 * mt * t) + (self.end.y as f32 * t2);
+            let x = (self.start.x as f32 * mt2)
+                + (2.0 * self.control.x as f32 * mt * t)
+                + (self.end.x as f32 * t2);
+            let y = (self.start.y as f32 * mt2)
+                + (2.0 * self.control.y as f32 * mt * t)
+                + (self.end.y as f32 * t2);
             (x.round(), y.round()) // round to nearest pixel, to avoid ugly line artifacts
         };
 
@@ -96,8 +109,13 @@ impl Shape for QuadraticBezier {
         };
 
         // Approximate curve's length by adding distance between control points.
-        let curve_length_bound: f32 = distance((self.start.x as f32, self.start.y as f32), (self.control.x as f32, self.control.y as f32)) +
-            distance((self.control.x as f32, self.control.y as f32), (self.end.x as f32, self.end.y as f32));
+        let curve_length_bound: f32 = distance(
+            (self.start.x as f32, self.start.y as f32),
+            (self.control.x as f32, self.control.y as f32),
+        ) + distance(
+            (self.control.x as f32, self.control.y as f32),
+            (self.end.x as f32, self.end.y as f32),
+        );
 
         // Use hyperbola function to give shorter curves a bias in number of line segments.
         let num_segments: i32 = ((curve_length_bound.powi(2) + 800.0).sqrt() / 8.0) as i32;
@@ -111,7 +129,8 @@ impl Shape for QuadraticBezier {
         for i in 0..num_segments {
             let t2 = (i as f32 + 1.0) * t_interval;
 
-            let line_iterator = BresenhamLineIter::new(cubic_bezier_curve(t1), cubic_bezier_curve(t2));
+            let line_iterator =
+                BresenhamLineIter::new(cubic_bezier_curve(t1), cubic_bezier_curve(t2));
 
             for point in line_iterator {
                 let x = point.0;
@@ -139,17 +158,24 @@ impl Shape for QuadraticBezier {
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
 
-        let mut tri_image: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
+        let mut tri_image: ImageBuffer<Rgba<u8>, Vec<u8>> =
+            image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
         let mut output = image.clone();
 
-        tri_image = draw_cubic_bezier_curve(&tri_image,
-                                            (self.start.x as f32, self.start.y as f32),
-                                            (self.end.x as f32, self.end.y as f32),
-                                            ((self.control.x as f32 - self.start.x as f32) * 2.0/3.0,
-                                                        (self.control.y as f32 - self.start.y as f32) * 2.0/3.0),
-                                            ((self.control.x as f32 - self.end.x as f32) * 2.0/3.0,
-                                                        (self.control.y as f32 - self.end.y as f32) * 2.0/3.0),
-                                            self.color);
+        tri_image = draw_cubic_bezier_curve(
+            &tri_image,
+            (self.start.x as f32, self.start.y as f32),
+            (self.end.x as f32, self.end.y as f32),
+            (
+                (self.control.x as f32 - self.start.x as f32) * 2.0 / 3.0,
+                (self.control.y as f32 - self.start.y as f32) * 2.0 / 3.0,
+            ),
+            (
+                (self.control.x as f32 - self.end.x as f32) * 2.0 / 3.0,
+                (self.control.y as f32 - self.end.y as f32) * 2.0 / 3.0,
+            ),
+            self.color,
+        );
 
         overlay(&mut output, &tri_image, 0, 0);
 
@@ -157,17 +183,33 @@ impl Shape for QuadraticBezier {
     }
 
     //noinspection RsTypeCheck
-    fn scaled_paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>, scale: f64) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+    fn scaled_paint_on(
+        &self,
+        image: &ImageBuffer<Rgba<u8>, Vec<u8>>,
+        scale: f64,
+    ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
         let (width, height) = image.dimensions();
 
-        let mut curve_image: ImageBuffer<Rgba<u8>, Vec<u8>> = image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
+        let mut curve_image: ImageBuffer<Rgba<u8>, Vec<u8>> =
+            image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
         let mut output = image.clone();
 
-        let start = (self.start.x as f32 * scale as f32, self.start.y as f32 * scale as f32);
-        let end = (self.end.x as f32 * scale as f32, self.end.y as f32 * scale as f32);
-        let c1 = ((self.control.x as f32 - self.start.x as f32) * 2.0/3.0 * scale as f32, (self.control.y as f32 - self.start.y as f32) * 2.0/3.0 * scale as f32);
-        let c2 = ((self.control.x as f32 - self.end.x as f32) * 2.0/3.0 * scale as f32, (self.control.y as f32 - self.end.y as f32) * 2.0/3.0 * scale as f32);
-
+        let start = (
+            self.start.x as f32 * scale as f32,
+            self.start.y as f32 * scale as f32,
+        );
+        let end = (
+            self.end.x as f32 * scale as f32,
+            self.end.y as f32 * scale as f32,
+        );
+        let c1 = (
+            (self.control.x as f32 - self.start.x as f32) * 2.0 / 3.0 * scale as f32,
+            (self.control.y as f32 - self.start.y as f32) * 2.0 / 3.0 * scale as f32,
+        );
+        let c2 = (
+            (self.control.x as f32 - self.end.x as f32) * 2.0 / 3.0 * scale as f32,
+            (self.control.y as f32 - self.end.y as f32) * 2.0 / 3.0 * scale as f32,
+        );
 
         curve_image = draw_cubic_bezier_curve(&curve_image, start, end, c1, c2, self.color);
 

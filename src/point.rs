@@ -1,17 +1,17 @@
-use rand_distr::Normal;
-use imageproc::drawing::Point;
 use super::utilities::*;
+use imageproc::drawing::Point;
 use rand::Rng;
+use rand_distr::Normal;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct PrimitivePoint {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 impl Eq for PrimitivePoint {}
 impl PrimitivePoint {
     pub fn new(x: i32, y: i32) -> PrimitivePoint {
-        PrimitivePoint {x, y}
+        PrimitivePoint { x, y }
     }
 
     ///
@@ -26,8 +26,16 @@ impl PrimitivePoint {
 
         let normal = Normal::new(0.0, 16.0).unwrap();
 
-        self.x = clamp(self.x + (rng.sample(normal) as i32), -border_extension, width as i32 + border_extension);
-        self.y = clamp(self.y + (rng.sample(normal) as i32), -border_extension, height as i32 + border_extension);
+        self.x = clamp(
+            self.x + (rng.sample(normal) as i32),
+            -border_extension,
+            width as i32 + border_extension,
+        );
+        self.y = clamp(
+            self.y + (rng.sample(normal) as i32),
+            -border_extension,
+            height as i32 + border_extension,
+        );
     }
 
     ///
@@ -44,15 +52,15 @@ impl PrimitivePoint {
         let dx2 = (p3.x - self.x) as f64;
         let dy2 = (p3.y - self.y) as f64;
 
-        let d1 = sqrt(dx1*dx1 + dy1*dy1);
-        let d2 = sqrt(dx2*dx2 + dy2*dy2);
+        let d1 = sqrt(dx1 * dx1 + dy1 * dy1);
+        let d2 = sqrt(dx2 * dx2 + dy2 * dy2);
 
-        let rdx1 = dx1/d1;
-        let rdy1 = dy1/d1;
-        let rdx2 = dx2/d2;
-        let rdy2 = dy2/d2;
+        let rdx1 = dx1 / d1;
+        let rdy1 = dy1 / d1;
+        let rdx2 = dx2 / d2;
+        let rdy2 = dy2 / d2;
 
-        degrees(acos(rdx1*rdx2 + rdy1*rdy2))
+        degrees(acos(rdx1 * rdx2 + rdy1 * rdy2))
     }
 
     ///
@@ -73,8 +81,10 @@ impl PrimitivePoint {
     pub fn random_point_in_radius(&self, radius: i32, seed: u64) -> PrimitivePoint {
         let mut rng = get_rng(seed);
 
-        PrimitivePoint::new(rng.gen_range(self.x - radius, self.x + radius),
-                            rng.gen_range(self.y - radius, self.y + radius))
+        PrimitivePoint::new(
+            rng.gen_range(self.x - radius, self.x + radius),
+            rng.gen_range(self.y - radius, self.y + radius),
+        )
     }
 }
 
@@ -85,7 +95,10 @@ mod tests {
     #[test]
     fn test_random_point() {
         let seed: u64 = 42;
-        assert_eq!(PrimitivePoint::random_point(10, 10, seed), PrimitivePoint::new(8, 5));
+        assert_eq!(
+            PrimitivePoint::random_point(10, 10, seed),
+            PrimitivePoint::new(8, 5)
+        );
     }
 
     #[test]
@@ -121,7 +134,6 @@ mod tests {
         let p2 = PrimitivePoint::new(5, 0);
         let p3 = PrimitivePoint::new(0, 5);
         assert_eq!(p2.angle(p1, p3) as u32, 45);
-
     }
 
     #[test]
