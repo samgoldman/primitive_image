@@ -178,6 +178,6 @@ impl Shape for QuadraticBezier {
     }
 
     fn set_color_using(&mut self, image: &PrimitiveImage) {
-        self.color = image.target_average_color_in_shape(&Box::new(*self));
+        self.color = image.target_average_color_in_shape(self);
     }
 }

@@ -59,7 +59,7 @@ impl PrimitiveImage {
         PrimitiveImage {target: resized, approximation, scale, background, shapes: vec![]}
     }
 
-    pub fn target_average_color_in_shape(&self, shape: &Box<impl Shape>) -> Rgba<u8> {
+    pub fn target_average_color_in_shape(&self, shape: &impl Shape) -> Rgba<u8> {
         average_color_in_shape(&self.target, shape)
     }
 
@@ -224,7 +224,7 @@ impl PrimitiveImage {
     }
 }
 
-fn average_color_in_shape(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, shape: &Box<impl Shape>) -> Rgba<u8> {
+fn average_color_in_shape(image: &ImageBuffer<Rgba<u8>, Vec<u8>>, shape: &impl Shape) -> Rgba<u8> {
     let (width, height) = image.dimensions();
 
     let pixels = shape.get_pixels();
