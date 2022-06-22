@@ -64,7 +64,7 @@ impl Shape for CubicBezier {
         let mut i = 0;
         loop {
             i += 1;
-            let r = rng.gen_range(0, 4);
+            let r = rng.gen_range(0..4);
 
             match r {
                 0 => self.start.mutate(width, height, seed),

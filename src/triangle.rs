@@ -6,8 +6,8 @@ use crate::utilities::rgb_to_hex;
 use image::imageops::overlay;
 use image::ImageBuffer;
 use image::Rgba;
-use imageproc::drawing::draw_convex_polygon;
-use imageproc::drawing::Point;
+use imageproc::drawing::draw_polygon;
+use imageproc::point::Point;
 use rand::Rng;
 use std::cmp::{max, min};
 
@@ -126,7 +126,7 @@ impl Shape for Triangle {
         let mut i = 0;
         loop {
             i += 1;
-            let r = rng.gen_range(0, 3);
+            let r = rng.gen_range(0..3);
 
             self.path[r].mutate(width, height, seed);
 
@@ -182,7 +182,7 @@ impl Shape for Triangle {
             image::ImageBuffer::from_pixel(width as u32, height as u32, image::Rgba([0, 0, 0, 0]));
         let mut output = image.clone();
 
-        tri_image = draw_convex_polygon(&tri_image, &(self.get_drawing_points()), self.color);
+        tri_image = draw_polygon(&tri_image, &(self.get_drawing_points()), self.color);
 
         overlay(&mut output, &tri_image, 0, 0);
 
@@ -216,7 +216,7 @@ impl Shape for Triangle {
         let dp1 = p1.to_drawing_point();
         let dp2 = p2.to_drawing_point();
 
-        tri_image = draw_convex_polygon(&tri_image, &[dp0, dp1, dp2], self.color);
+        tri_image = draw_polygon(&tri_image, &[dp0, dp1, dp2], self.color);
 
         overlay(&mut output, &tri_image, 0, 0);
 

@@ -30,7 +30,7 @@ impl PrimitiveImage {
     pub fn from_path(path: PathBuf, scale_to: u32, background: Option<Rgba<u8>>) -> PrimitiveImage {
         let original = open(&path)
             .unwrap_or_else(|_| panic!("Could not load image at {:?}", path))
-            .to_rgba();
+            .to_rgba8();
 
         let (original_width, original_height) = original.dimensions();
 

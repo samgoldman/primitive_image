@@ -45,9 +45,9 @@ impl RandomShape for Ellipse {
         let mut rng = get_rng(seed);
 
         let center = PrimitivePoint::random_point(width, height, seed);
-        let a = rng.gen_range(1, max(width as i32, height as i32) / 10);
-        let b = rng.gen_range(1, max(width as i32, height as i32) / 10);
-        let angle = rng.gen_range(0, 360);
+        let a = rng.gen_range(1..max(width as i32, height as i32) / 10);
+        let b = rng.gen_range(1..max(width as i32, height as i32) / 10);
+        let angle = rng.gen_range(0..360);
 
         let mut ellipse = Ellipse {
             center,
@@ -70,7 +70,7 @@ impl Shape for Ellipse {
         let mut i = 0;
         loop {
             i += 1;
-            let r = rng.gen_range(0, 4);
+            let r = rng.gen_range(0..4);
 
             match r {
                 0 => self.center.mutate(width, height, seed),

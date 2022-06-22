@@ -39,9 +39,9 @@ impl RandomShape for Rectangle {
         let mut rng = get_rng(seed);
 
         let center = PrimitivePoint::random_point(width, height, seed);
-        let width = rng.gen_range(5, max(width, height) / 2);
-        let height = rng.gen_range(5, max(width, height) / 2);
-        let angle = rng.gen_range(0, 180);
+        let width = rng.gen_range(5..max(width, height) / 2);
+        let height = rng.gen_range(5..max(width, height) / 2);
+        let angle = rng.gen_range(0..180);
 
         let mut rect = Rectangle {
             center,
@@ -64,7 +64,7 @@ impl Shape for Rectangle {
         let mut i = 0;
         loop {
             i += 1;
-            let r = rng.gen_range(0, 4);
+            let r = rng.gen_range(0..4);
 
             match r {
                 0 => self.center.mutate(width, height, seed),
@@ -82,7 +82,7 @@ impl Shape for Rectangle {
                         max(width, height) as i32,
                     ) as u32
                 }
-                3 => self.angle = rng.gen_range(0, 180),
+                3 => self.angle = rng.gen_range(0..180),
                 _ => {}
             }
 

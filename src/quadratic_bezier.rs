@@ -70,7 +70,7 @@ impl Shape for QuadraticBezier {
         let mut i = 0;
         loop {
             i += 1;
-            let r = rng.gen_range(0, 3);
+            let r = rng.gen_range(0..3);
 
             match r {
                 0 => self.start.mutate(width, height, seed),

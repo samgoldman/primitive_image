@@ -1,5 +1,5 @@
 use super::utilities::*;
-use imageproc::drawing::Point;
+use imageproc::point::Point;
 use rand::Rng;
 use rand_distr::Normal;
 
@@ -69,8 +69,8 @@ impl PrimitivePoint {
     pub fn random_point(width: u32, height: u32, seed: u64) -> PrimitivePoint {
         let mut rng = get_rng(seed);
 
-        let rand_x = rng.gen_range(0, width as i32);
-        let rand_y = rng.gen_range(0, height as i32);
+        let rand_x = rng.gen_range(0..width as i32);
+        let rand_y = rng.gen_range(0..height as i32);
 
         PrimitivePoint::new(rand_x, rand_y)
     }
@@ -82,8 +82,8 @@ impl PrimitivePoint {
         let mut rng = get_rng(seed);
 
         PrimitivePoint::new(
-            rng.gen_range(self.x - radius, self.x + radius),
-            rng.gen_range(self.y - radius, self.y + radius),
+            rng.gen_range(self.x - radius..self.x + radius),
+            rng.gen_range(self.y - radius..self.y + radius),
         )
     }
 }
@@ -97,7 +97,7 @@ mod tests {
         let seed: u64 = 42;
         assert_eq!(
             PrimitivePoint::random_point(10, 10, seed),
-            PrimitivePoint::new(8, 5)
+            PrimitivePoint::new(1, 5)
         );
     }
 
@@ -106,7 +106,7 @@ mod tests {
         let seed: u64 = 42;
         let p = PrimitivePoint::new(5, 5);
         // Like in `test_random_point`, both ranges should be [0-10), so the output point should be the same, given the same seed
-        assert_eq!(p.random_point_in_radius(5, seed), PrimitivePoint::new(8, 5));
+        assert_eq!(p.random_point_in_radius(5, seed), PrimitivePoint::new(1, 5));
     }
 
     #[test]
@@ -142,7 +142,7 @@ mod tests {
 
         let mut p = PrimitivePoint::new(0, 0);
         p.mutate(10, 10, seed);
-        assert_eq!(p.x, 0); // Based on prior executions
-        assert_eq!(p.y, -3);
+        assert_eq!(p.x, 1); // Based on prior executions
+        assert_eq!(p.y, 2);
     }
 }
