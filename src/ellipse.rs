@@ -1,7 +1,7 @@
 use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use crate::shape::{RandomShape, Shape};
-use crate::utilities::{clamp, get_rng, rgb_to_hex, rotate_point};
+use crate::utilities::{clamp, rgb_to_hex, rotate_point};
 use image::ImageBuffer;
 use image::Pixel;
 use image::Rgba;
@@ -41,10 +41,8 @@ impl RandomShape for Ellipse {
     /// `border_extension` is the maximum distance outside of the border a triangle is allowed to go
     ///     It must be >= 1
     ///
-    fn random(width: u32, height: u32, _border_extension: i32, seed: u64) -> Box<dyn Shape> {
-        let mut rng = get_rng(seed);
-
-        let center = PrimitivePoint::random_point(width, height, seed);
+    fn random(width: u32, height: u32, _border_extension: i32, rng: &mut impl Rng) -> Self {
+        let center = PrimitivePoint::random_point(width, height, rng);
         let a = rng.gen_range(1..max(width as i32, height as i32) / 10);
         let b = rng.gen_range(1..max(width as i32, height as i32) / 10);
         let angle = rng.gen_range(0..360);
@@ -56,15 +54,14 @@ impl RandomShape for Ellipse {
             angle,
             color: Rgba([0, 0, 0, 128]),
         };
-        ellipse.mutate(width, height, seed);
+        ellipse.mutate(width, height, rng);
 
-        Box::new(ellipse)
+        ellipse
     }
 }
 
 impl Shape for Ellipse {
-    fn mutate(&mut self, width: u32, height: u32, seed: u64) {
-        let mut rng = get_rng(seed);
+    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) {
         let normal = Normal::new(0.0, 5.0).unwrap();
 
         let mut i = 0;
@@ -73,7 +70,7 @@ impl Shape for Ellipse {
             let r = rng.gen_range(0..4);
 
             match r {
-                0 => self.center.mutate(width, height, seed),
+                0 => self.center.mutate(width, height, rng),
                 1 => {
                     self.a = clamp(
                         self.a as i32 + (rng.sample(normal) as i32),

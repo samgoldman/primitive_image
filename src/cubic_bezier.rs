@@ -1,7 +1,6 @@
 use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use crate::shape::{RandomShape, Shape};
-use crate::utilities::get_rng;
 use crate::utilities::rgb_to_hex;
 use image::imageops::overlay;
 use image::ImageBuffer;
@@ -27,14 +26,14 @@ impl CubicBezier {
         end: PrimitivePoint,
         control1: PrimitivePoint,
         control2: PrimitivePoint,
-    ) -> Box<CubicBezier> {
-        Box::new(CubicBezier {
+    ) -> CubicBezier {
+        CubicBezier {
             color: Rgba([0, 0, 0, 128]),
             start,
             end,
             control1,
             control2,
-        })
+        }
     }
 
     /// Currently no validation for CubicBezier is required, so this always returns true
@@ -44,22 +43,21 @@ impl CubicBezier {
 }
 
 impl RandomShape for CubicBezier {
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<dyn Shape> {
-        let start = PrimitivePoint::random_point(width, height, seed);
-        let c1 = start.random_point_in_radius(border_extension, seed);
-        let c2 = start.random_point_in_radius(border_extension, seed);
-        let end = start.random_point_in_radius(border_extension, seed);
+    fn random(width: u32, height: u32, border_extension: i32, rng: &mut impl Rng) -> Self {
+        let start = PrimitivePoint::random_point(width, height, rng);
+        let c1 = start.random_point_in_radius(border_extension, rng);
+        let c2 = start.random_point_in_radius(border_extension, rng);
+        let end = start.random_point_in_radius(border_extension, rng);
 
         let mut bezier = CubicBezier::new(start, end, c1, c2);
-        bezier.mutate(width, height, seed);
+        bezier.mutate(width, height, rng);
 
         bezier
     }
 }
 
 impl Shape for CubicBezier {
-    fn mutate(&mut self, width: u32, height: u32, seed: u64) {
-        let mut rng = get_rng(seed);
+    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) {
 
         let mut i = 0;
         loop {
@@ -67,10 +65,10 @@ impl Shape for CubicBezier {
             let r = rng.gen_range(0..4);
 
             match r {
-                0 => self.start.mutate(width, height, seed),
-                1 => self.end.mutate(width, height, seed),
-                2 => self.control1.mutate(width, height, seed),
-                3 => self.control2.mutate(width, height, seed),
+                0 => self.start.mutate(width, height, rng),
+                1 => self.end.mutate(width, height, rng),
+                2 => self.control1.mutate(width, height, rng),
+                3 => self.control2.mutate(width, height, rng),
                 _ => {}
             }
 

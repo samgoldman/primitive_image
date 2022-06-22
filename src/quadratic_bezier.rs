@@ -1,7 +1,6 @@
 use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use crate::shape::{RandomShape, Shape};
-use crate::utilities::get_rng;
 use crate::utilities::rgb_to_hex;
 use image::imageops::overlay;
 use image::ImageBuffer;
@@ -25,13 +24,13 @@ impl QuadraticBezier {
         start: PrimitivePoint,
         end: PrimitivePoint,
         control: PrimitivePoint,
-    ) -> Box<QuadraticBezier> {
-        Box::new(QuadraticBezier {
+    ) -> Self {
+        QuadraticBezier {
             color: Rgba([0, 0, 0, 128]),
             start,
             end,
             control,
-        })
+        }
     }
 
     /// Currently no validation for CubicBezier is required, so this always returns true
@@ -51,31 +50,29 @@ impl QuadraticBezier {
 }
 
 impl RandomShape for QuadraticBezier {
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<dyn Shape> {
-        let start = PrimitivePoint::random_point(width, height, seed);
-        let control = start.random_point_in_radius(border_extension, seed);
-        let end = start.random_point_in_radius(border_extension, seed);
+    fn random(width: u32, height: u32, border_extension: i32, rng: &mut impl Rng) -> Self {
+        let start = PrimitivePoint::random_point(width, height, rng);
+        let control = start.random_point_in_radius(border_extension, rng);
+        let end = start.random_point_in_radius(border_extension, rng);
 
         let mut bezier = QuadraticBezier::new(start, end, control);
-        bezier.mutate(width, height, seed);
+        bezier.mutate(width, height, rng);
 
         bezier
     }
 }
 
 impl Shape for QuadraticBezier {
-    fn mutate(&mut self, width: u32, height: u32, seed: u64) {
-        let mut rng = get_rng(seed);
-
+    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) {
         let mut i = 0;
         loop {
             i += 1;
             let r = rng.gen_range(0..3);
 
             match r {
-                0 => self.start.mutate(width, height, seed),
-                1 => self.end.mutate(width, height, seed),
-                2 => self.control.mutate(width, height, seed),
+                0 => self.start.mutate(width, height, rng),
+                1 => self.end.mutate(width, height, rng),
+                2 => self.control.mutate(width, height, rng),
                 _ => {}
             }
 

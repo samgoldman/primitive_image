@@ -2,6 +2,7 @@ use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use image::ImageBuffer;
 use image::Rgba;
+use rand::Rng;
 use std::fmt::Debug;
 
 #[derive(Debug)]
@@ -14,7 +15,7 @@ pub enum ShapeType {
 }
 
 pub trait Shape: ShapeClone + Debug {
-    fn mutate(&mut self, width: u32, height: u32, seed: u64);
+    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) where Self: Sized;
     fn get_pixels(&self) -> Vec<PrimitivePoint>;
     fn as_svg(&self, scale: f64) -> String;
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>>;
@@ -46,5 +47,5 @@ impl Clone for Box<dyn Shape> {
 }
 
 pub trait RandomShape {
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<dyn Shape>;
+    fn random(width: u32, height: u32, border_extension: i32, rng: &mut impl Rng) -> Self;
 }

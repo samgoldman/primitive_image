@@ -1,11 +1,4 @@
-use crate::cubic_bezier::CubicBezier;
-use crate::ellipse::Ellipse;
-use crate::quadratic_bezier::QuadraticBezier;
-use crate::rectangle::Rectangle;
 use crate::shape::{RandomShape, Shape};
-use crate::triangle::Triangle;
-
-use crate::shape::ShapeType;
 use crate::utilities::rgb_to_hex;
 use image::imageops::{resize, Nearest};
 use image::{open, ImageBuffer, Rgba};
@@ -15,6 +8,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::option::Option;
 use std::path::PathBuf;
+use rand::Rng;
 
 const BORDER_EXTENSION: i32 = 6;
 
@@ -162,25 +156,11 @@ impl PrimitiveImage {
         root_mean_squared_error(&self.target, &self.approximation)
     }
 
-    pub fn add_new_shape(&mut self, max_age: u32, shape_type: &ShapeType, seed: u64) -> bool {
+    pub fn add_new_shape<T>(&mut self, max_age: u32, rng: &mut impl Rng) -> bool
+    where T: RandomShape + Shape + Clone + 'static {
         // Initialize a random shape and give it a color
-        let mut shape = match shape_type {
-            ShapeType::Triangle => {
-                Triangle::random(self.width(), self.height(), BORDER_EXTENSION, seed)
-            }
-            ShapeType::CubicBezier => {
-                CubicBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed)
-            }
-            ShapeType::QuadraticBezier => {
-                QuadraticBezier::random(self.width(), self.height(), BORDER_EXTENSION, seed)
-            }
-            ShapeType::Rectangle => {
-                Rectangle::random(self.width(), self.height(), BORDER_EXTENSION, seed)
-            }
-            ShapeType::Ellipse => {
-                Ellipse::random(self.width(), self.height(), BORDER_EXTENSION, seed)
-            }
-        };
+        let mut shape = Box::new(T::random(self.width(), self.height(), BORDER_EXTENSION, rng));
+
         shape.set_color_using(self);
 
         // The initial triangle is the best so far
@@ -193,7 +173,7 @@ impl PrimitiveImage {
         // Loop until max_age mutations fail to yield and improvement
         while age < max_age {
             // Mutate the shape and update its color
-            shape.mutate(self.width(), self.height(), seed);
+            shape.mutate(self.width(), self.height(), rng);
             shape.set_color_using(self);
 
             // Determine its score

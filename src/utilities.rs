@@ -5,6 +5,7 @@ use std::cmp::{max, min};
 use std::f64;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+
 /// Return the square root of x
 pub fn sqrt(x: f64) -> f64 {
     x.sqrt()
@@ -43,7 +44,9 @@ fn get_time_seed() -> u64 {
         .expect("Time went backwards");
 
     // Seed
-    since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_nanos() as u64
+    let seed = since_the_epoch.as_secs() * 1000 + since_the_epoch.subsec_nanos() as u64;
+    info!("Seed: {}", seed);
+    seed
 }
 
 pub fn rgb_to_hex(color: Rgba<u8>) -> String {

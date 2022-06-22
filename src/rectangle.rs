@@ -1,7 +1,7 @@
 use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use crate::shape::{RandomShape, Shape};
-use crate::utilities::{clamp, get_rng, rgb_to_hex, rotate_point};
+use crate::utilities::{clamp, rgb_to_hex, rotate_point};
 use image::ImageBuffer;
 use image::Pixel;
 use image::Rgba;
@@ -35,10 +35,8 @@ impl RandomShape for Rectangle {
     /// `border_extension` is the maximum distance outside of the border a triangle is allowed to go
     ///     It must be >= 1
     ///
-    fn random(width: u32, height: u32, _border_extension: i32, seed: u64) -> Box<dyn Shape> {
-        let mut rng = get_rng(seed);
-
-        let center = PrimitivePoint::random_point(width, height, seed);
+    fn random(width: u32, height: u32, _border_extension: i32, rng: &mut impl Rng) -> Self {
+        let center = PrimitivePoint::random_point(width, height, rng);
         let width = rng.gen_range(5..max(width, height) / 2);
         let height = rng.gen_range(5..max(width, height) / 2);
         let angle = rng.gen_range(0..180);
@@ -50,15 +48,14 @@ impl RandomShape for Rectangle {
             angle,
             color: Rgba([0, 0, 0, 128]),
         };
-        rect.mutate(width, height, seed);
+        rect.mutate(width, height, rng);
 
-        Box::new(rect)
+        rect
     }
 }
 
 impl Shape for Rectangle {
-    fn mutate(&mut self, width: u32, height: u32, seed: u64) {
-        let mut rng = get_rng(seed);
+    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) {
         let normal = Normal::new(0.0, 16.0).unwrap();
 
         let mut i = 0;
@@ -67,7 +64,7 @@ impl Shape for Rectangle {
             let r = rng.gen_range(0..4);
 
             match r {
-                0 => self.center.mutate(width, height, seed),
+                0 => self.center.mutate(width, height, rng),
                 1 => {
                     self.width = clamp(
                         self.width as i32 + (rng.sample(normal) as i32),

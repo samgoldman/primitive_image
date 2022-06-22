@@ -1,7 +1,6 @@
 use crate::point::PrimitivePoint;
 use crate::primitive_image::PrimitiveImage;
 use crate::shape::{RandomShape, Shape};
-use crate::utilities::get_rng;
 use crate::utilities::rgb_to_hex;
 use image::imageops::overlay;
 use image::ImageBuffer;
@@ -49,14 +48,14 @@ impl Triangle {
         }
     }
 
-    fn new(vertices: Vec<PrimitivePoint>) -> Box<Triangle> {
+    fn new(vertices: Vec<PrimitivePoint>) -> Self {
         if vertices.len() != 3 {
             panic!("Triangles have 3 vertices, not {}!", vertices.len());
         } else {
-            Box::new(Triangle {
+            Triangle {
                 color: Rgba([0, 0, 0, 128]),
                 path: [vertices[0], vertices[1], vertices[2]],
-            })
+            }
         }
     }
 
@@ -102,13 +101,13 @@ impl RandomShape for Triangle {
     /// `border_extension` is the maximum distance outside of the border a triangle is allowed to go
     ///     It must be >= 1
     ///
-    fn random(width: u32, height: u32, border_extension: i32, seed: u64) -> Box<dyn Shape> {
-        let p0 = PrimitivePoint::random_point(width, height, seed);
-        let p1 = p0.random_point_in_radius(border_extension, seed);
-        let p2 = p0.random_point_in_radius(border_extension, seed);
+    fn random(width: u32, height: u32, border_extension: i32, rng: &mut impl Rng) -> Self {
+        let p0 = PrimitivePoint::random_point(width, height, rng);
+        let p1 = p0.random_point_in_radius(border_extension, rng);
+        let p2 = p0.random_point_in_radius(border_extension, rng);
 
         let mut tri = Triangle::new(vec![p0, p1, p2]);
-        tri.mutate(width, height, seed);
+        tri.mutate(width, height, rng);
 
         tri
     }
@@ -120,15 +119,13 @@ impl Shape for Triangle {
     /// Guarantees that the triangle remains valid
     /// Does not recolor the triangle
     ///
-    fn mutate(&mut self, width: u32, height: u32, seed: u64) {
-        let mut rng = get_rng(seed);
-
+    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) {
         let mut i = 0;
         loop {
             i += 1;
             let r = rng.gen_range(0..3);
 
-            self.path[r].mutate(width, height, seed);
+            self.path[r].mutate(width, height, rng);
 
             if self.is_valid() {
                 break;
