@@ -15,7 +15,9 @@ pub enum ShapeType {
 }
 
 pub trait Shape: ShapeClone + Debug {
-    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) where Self: Sized;
+    fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng)
+    where
+        Self: Sized;
     fn get_pixels(&self) -> Vec<PrimitivePoint>;
     fn as_svg(&self, scale: f64) -> String;
     fn paint_on(&self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> ImageBuffer<Rgba<u8>, Vec<u8>>;

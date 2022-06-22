@@ -102,7 +102,10 @@ mod tests {
         let p = PrimitivePoint::new(5, 5);
         let mut rng = get_rng(seed);
         // Like in `test_random_point`, both ranges should be [0-10), so the output point should be the same, given the same seed
-        assert_eq!(p.random_point_in_radius(5, &mut rng), PrimitivePoint::new(1, 5));
+        assert_eq!(
+            p.random_point_in_radius(5, &mut rng),
+            PrimitivePoint::new(1, 5)
+        );
     }
 
     #[test]

@@ -20,11 +20,7 @@ pub struct QuadraticBezier {
 }
 
 impl QuadraticBezier {
-    fn new(
-        start: PrimitivePoint,
-        end: PrimitivePoint,
-        control: PrimitivePoint,
-    ) -> Self {
+    fn new(start: PrimitivePoint, end: PrimitivePoint, control: PrimitivePoint) -> Self {
         QuadraticBezier {
             color: Rgba([0, 0, 0, 128]),
             start,

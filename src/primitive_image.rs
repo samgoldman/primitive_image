@@ -3,12 +3,12 @@ use crate::utilities::rgb_to_hex;
 use image::imageops::{resize, Nearest};
 use image::{open, ImageBuffer, Rgba};
 use imageproc::stats::root_mean_squared_error;
+use rand::Rng;
 use std::cmp::max;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::option::Option;
 use std::path::PathBuf;
-use rand::Rng;
 
 const BORDER_EXTENSION: i32 = 6;
 
@@ -157,9 +157,16 @@ impl PrimitiveImage {
     }
 
     pub fn add_new_shape<T>(&mut self, max_age: u32, rng: &mut impl Rng) -> bool
-    where T: RandomShape + Shape + Clone + 'static {
+    where
+        T: RandomShape + Shape + Clone + 'static,
+    {
         // Initialize a random shape and give it a color
-        let mut shape = Box::new(T::random(self.width(), self.height(), BORDER_EXTENSION, rng));
+        let mut shape = Box::new(T::random(
+            self.width(),
+            self.height(),
+            BORDER_EXTENSION,
+            rng,
+        ));
 
         shape.set_color_using(self);
 

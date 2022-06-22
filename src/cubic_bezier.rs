@@ -58,7 +58,6 @@ impl RandomShape for CubicBezier {
 
 impl Shape for CubicBezier {
     fn mutate(&mut self, width: u32, height: u32, rng: &mut impl Rng) {
-
         let mut i = 0;
         loop {
             i += 1;

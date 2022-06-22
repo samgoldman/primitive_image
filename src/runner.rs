@@ -1,9 +1,9 @@
 use crate::cubic_bezier::CubicBezier;
+use crate::ellipse::Ellipse;
 use crate::primitive_image::PrimitiveImage;
 use crate::quadratic_bezier::QuadraticBezier;
 use crate::rectangle::Rectangle;
 use crate::triangle::Triangle;
-use crate::ellipse::Ellipse;
 use crate::utilities::get_rng;
 use rand::Rng;
 

@@ -5,7 +5,6 @@ use std::cmp::{max, min};
 use std::f64;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-
 /// Return the square root of x
 pub fn sqrt(x: f64) -> f64 {
     x.sqrt()
