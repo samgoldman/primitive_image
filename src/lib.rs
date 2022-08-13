@@ -1,5 +1,3 @@
-#![feature(explicit_generic_args_with_impl_trait)]
-
 extern crate image;
 extern crate imageproc;
 extern crate rand;
