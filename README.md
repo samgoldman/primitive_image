@@ -4,7 +4,7 @@
 
 Approximate images using SVGs.
 
-This is mostly a port of https://github.com/fogleman/primitive (written in Go), with a new thing or two. I encountered that project few years ago and recently used it to generate over a thousand SVG approximations as placeholders for an [image gallery](www.samueltgoldman.com/china) (while lazy loading the images). I decided I wanted to understand how it worked and I wanted to practice my Rust skills (this is my second project in the language), so I took about a week and wrote this.
+This is mostly a port of https://github.com/fogleman/primitive (written in Go), with a new thing or two. I encountered that project few years ago and recently used it to generate over a thousand SVG approximations as placeholders for an [image gallery](https://www.samueltgoldman.com/china) (while lazy loading the images). I decided I wanted to understand how it worked and I wanted to practice my Rust skills (this is my second project in the language), so I took about a week and wrote this.
 
 Triangles and rectangles produce the best results by far. Cubics and Quadratics can either look really cool, or (more
 often than not), look like a toddler was let loose. And I haven't experimented much with ellipses, but I've had mixed
